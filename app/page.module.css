@@ -1,0 +1,370 @@
+/* ─── Layout ──────────────────────────────────────────────────────────────── */
+.main {
+  position: relative;
+  /* Short scroll: 4 sentences × 50vh = one screen-and-a-half of scrolling,
+     so a single full swipe reaches the end of the narrative */
+  min-height: 200vh;
+  min-height: 200dvh;
+  background: #0A0806;
+  overflow-x: hidden;
+}
+
+/* ─── Top scroll progress bar ─────────────────────────────────────────────── */
+.topProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, #C9A84C, #D4A017);
+  z-index: 1100;
+  transition: width 0.15s linear;
+}
+
+/* ─── Custom Cursor ───────────────────────────────────────────────────────── */
+.cursorDot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background: #C9A84C;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+}
+
+.cursorRing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(201, 168, 76, 0.9);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  will-change: transform;
+}
+
+/* Hide cursor elements on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .cursorDot,
+  .cursorRing {
+    display: none;
+  }
+}
+
+/* ─── Language Toggle ─────────────────────────────────────────────────────── */
+.langToggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+  background: rgba(10, 8, 6, 0.55);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 40px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s, background 0.3s, transform 0.2s;
+  /* Ensure touch-friendly size on mobile */
+  min-height: 40px;
+  cursor: pointer !important;
+}
+
+.langToggle:hover {
+  border-color: rgba(201, 168, 76, 0.75);
+  background: rgba(201, 168, 76, 0.1);
+  transform: scale(1.04);
+}
+
+.langToggle:active {
+  transform: scale(0.97);
+}
+
+.langActive {
+  color: #C9A84C;
+  font-weight: 600;
+}
+
+.langSep {
+  color: rgba(245, 230, 200, 0.3);
+  font-weight: 300;
+}
+
+.langInactive {
+  color: rgba(245, 230, 200, 0.5);
+  font-weight: 400;
+  transition: color 0.3s;
+}
+
+.langToggle:hover .langInactive {
+  color: rgba(245, 230, 200, 0.85);
+}
+
+/* ─── Video Background ────────────────────────────────────────────────────── */
+.videoWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  /* Smooth fade when switching to the last sentence */
+  transition: opacity 0.9s ease;
+  /* Placeholder shown until the video is ready (slow connections) */
+  background:
+    radial-gradient(ellipse at center, rgba(201, 168, 76, 0.07) 0%, rgba(10, 8, 6, 0) 55%),
+    linear-gradient(to bottom, #16110B 0%, #0A0806 100%);
+}
+
+.videoBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Full-bleed cover on every device — no cropping/misposition */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Start hidden and fade in once the first frame is ready */
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.videoOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 8, 6, 0.15) 0%,
+    rgba(10, 8, 6, 0.55) 70%,
+    rgba(10, 8, 6, 0.80) 100%
+  );
+}
+
+/* ─── Text Overlay & Items ──────────────────────────────────────────────── */
+.textOverlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+
+.textItem {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* ─── Scroll Canvas ───────────────────────────────────────────────────────── */
+.scrollCanvas {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ─── Text states ─────────────────────────────────────────────────────────── */
+.textVisible {
+  opacity: 1;
+}
+
+.textHidden {
+  opacity: 0;
+}
+
+.lineText {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.65rem, 5.5vw, 5.2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #F5E6C8;
+  max-width: 860px;
+  letter-spacing: -0.01em;
+  text-shadow:
+    0 2px 40px rgba(0, 0, 0, 0.8),
+    0 0 80px rgba(201, 168, 76, 0.08);
+  text-align: center;
+  /* Prevent awkward single-word orphans on mobile */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.lineDecor {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+  margin-top: 8px;
+  border-radius: 1px;
+}
+
+/* ─── Checkpoint (invisible scroll guides — provide scroll height) ────────── */
+.checkpoint {
+  height: 50vh;
+  height: 50dvh;
+}
+
+/* ─── Sentence navigation rail ────────────────────────────────────────────── */
+.scrollRail {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.scrollRail::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 50%;
+  width: 1px;
+  background: rgba(201, 168, 76, 0.22);
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.railDot {
+  position: relative;
+  z-index: 1;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.55);
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s, border-color 0.3s;
+}
+
+.railDot:hover {
+  border-color: #C9A84C;
+  transform: scale(1.3);
+}
+
+.railDotActive {
+  background: #C9A84C;
+  border-color: #C9A84C;
+  transform: scale(1.4);
+}
+
+/* ─── Scroll hint ─────────────────────────────────────────────────────────── */
+.scrollHint {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.scrollHintHidden {
+  opacity: 0;
+}
+
+.scrollHintLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.35em;
+  color: rgba(245, 230, 200, 0.55);
+}
+
+.scrollHintMouse {
+  width: 22px;
+  height: 36px;
+  border: 1.5px solid rgba(201, 168, 76, 0.6);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.scrollHintWheel {
+  width: 3px;
+  height: 7px;
+  border-radius: 2px;
+  background: #C9A84C;
+  animation: wheelDrop 1.6s ease-in-out infinite;
+}
+
+@keyframes wheelDrop {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
+
+/* ─── Mobile Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .langToggle {
+    top: 16px;
+    right: 16px;
+    padding: 7px 14px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .lineDecor {
+    width: 40px;
+  }
+
+  .scrollRail {
+    right: 14px;
+    gap: 12px;
+  }
+
+  .scrollHint {
+    bottom: 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lineText {
+    /* Allow more natural line wrapping on tablets */
+    max-width: 90vw;
+  }
+}
+
+/* ─── Landscape mobile fix ────────────────────────────────────────────────── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .lineDecor {
+    display: none;
+  }
+
+  .scrollHint {
+    display: none;
+  }
+}
