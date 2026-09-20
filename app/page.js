@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import styles from './page.module.css';
 
 /* ─── Custom Cursor Component ─────────────────────────────────────────────── */
@@ -81,172 +81,377 @@ const CustomCursor = () => {
 const TRANSLATIONS = {
   en: {
     lines: [
-      'Once, our life was very prosperous and harmonious',
-      'We all depended our lives on nature',
       'Nature provided everything we needed',
       'But all of this changed suddenly',
-      'Together with their armada they arrived',
+      'Together they arrived',
+      'They took our precious things',
+      'But history has passed, and we are ready to',
+      'share what is ours with you once again',
     ],
     toggleLabel: 'ID',
   },
   id: {
     lines: [
-      'Sebelumnya hidup kami sangat makmur dan rukun',
-      'Kami semua menggantungkan hidup kepada alam',
       'Alam memberikan semua yang kami butuhkan',
       'Tapi semua ini berubah tiba-tiba',
-      'Bersama armada mereka berdatangan',
+      'Bersama mereka datang',
+      'Mereka merampas hal berharga kami',
+      'Tapi sejarah sudah berlalu, dan kami siap untuk',
+      'kembali berbagi milik kami dengan anda',
     ],
     toggleLabel: 'EN',
   },
 };
 
+/* ─── Product Catalog Data ─────────────────────────────────────────────────── */
+const CATEGORIES = [
+  'Semua Kategori',
+  'Rempah',
+  'Olahan bahan makanan',
+  'Kerajinan',
+];
+
+const PRODUCTS = [
+  // Rempah
+  {
+    id: 'bawang-merah',
+    name: 'Bawang Merah',
+    category: 'Rempah',
+    image: '/Pictures/rempah/bawang merah.webp',
+  },
+  {
+    id: 'bunga-lawang',
+    name: 'Bunga Lawang',
+    category: 'Rempah',
+    image: '/Pictures/rempah/bunga lawang.webp',
+  },
+  {
+    id: 'cabai-kering',
+    name: 'Cabai Kering',
+    category: 'Rempah',
+    image: '/Pictures/rempah/cabai kering.webp',
+  },
+  {
+    id: 'cengkeh',
+    name: 'Cengkeh',
+    category: 'Rempah',
+    image: '/Pictures/rempah/cengkeh.webp',
+  },
+  {
+    id: 'daun-salam-kering',
+    name: 'Daun Salam Kering',
+    category: 'Rempah',
+    image: '/Pictures/rempah/daun salam kering.webp',
+  },
+  {
+    id: 'jintan',
+    name: 'Jintan',
+    category: 'Rempah',
+    image: '/Pictures/rempah/jintan.webp',
+  },
+  {
+    id: 'kayu-manis',
+    name: 'Kayu Manis',
+    category: 'Rempah',
+    image: '/Pictures/rempah/kayu manis.webp',
+  },
+  {
+    id: 'kemiri',
+    name: 'Kemiri',
+    category: 'Rempah',
+    image: '/Pictures/rempah/kemiri.webp',
+  },
+  {
+    id: 'ketumbar',
+    name: 'Ketumbar',
+    category: 'Rempah',
+    image: '/Pictures/rempah/ketumbar.webp',
+  },
+  {
+    id: 'kunyit',
+    name: 'Kunyit',
+    category: 'Rempah',
+    image: '/Pictures/rempah/kunyit.webp',
+  },
+  {
+    id: 'lada-hitam',
+    name: 'Lada Hitam',
+    category: 'Rempah',
+    image: '/Pictures/rempah/lada hitam.webp',
+  },
+  {
+    id: 'lengkuas',
+    name: 'Lengkuas',
+    category: 'Rempah',
+    image: '/Pictures/rempah/lengkuas.webp',
+  },
+  {
+    id: 'pala',
+    name: 'Pala',
+    category: 'Rempah',
+    image: '/Pictures/rempah/pala.webp',
+  },
+  {
+    id: 'serai',
+    name: 'Serai',
+    category: 'Rempah',
+    image: '/Pictures/rempah/serai.webp',
+  },
+
+  // Olahan bahan makanan
+  {
+    id: 'cireng',
+    name: 'Cireng',
+    category: 'Olahan bahan makanan',
+    image: '/Pictures/Olahan bahan makanan/cireng.webp',
+  },
+  {
+    id: 'emping',
+    name: 'Emping',
+    category: 'Olahan bahan makanan',
+    image: '/Pictures/Olahan bahan makanan/emping.webp',
+  },
+  {
+    id: 'kerupuk-rambak',
+    name: 'Kerupuk Rambak',
+    category: 'Olahan bahan makanan',
+    image: '/Pictures/Olahan bahan makanan/kerupuk rambak.webp',
+  },
+  {
+    id: 'kerupuk-udang',
+    name: 'Kerupuk Udang',
+    category: 'Olahan bahan makanan',
+    image: '/Pictures/Olahan bahan makanan/kerupuk udang.webp',
+  },
+  {
+    id: 'pempek',
+    name: 'Pempek',
+    category: 'Olahan bahan makanan',
+    image: '/Pictures/Olahan bahan makanan/pempek.webp',
+  },
+
+  // Kerajinan
+  {
+    id: 'arang-briket-kubus',
+    name: 'Arang Briket Kubus',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/Arang Briket kubus.webp',
+  },
+  {
+    id: 'dupa-kerucut',
+    name: 'Dupa Kerucut',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/dupa kerucut.webp',
+  },
+  {
+    id: 'baju-baduy-jokowi',
+    name: 'Baju Baduy Model Jokowi',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju baduy jokowi.webp',
+  },
+  {
+    id: 'set-baju-baduy-hitam',
+    name: 'Set Baju Baduy Hitam',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju hitam (gambar katalog).webp',
+  },
+  {
+    id: 'set-baju-baduy-putih',
+    name: 'Set Baju Baduy Putih',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju putih.webp',
+  },
+  {
+    id: 'set-baju-baduy-pria',
+    name: 'Set Baju Baduy Model Pria',
+    category: 'Kerajinan',
+    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model pria (gambar katalog).webp',
+  },
+];
+
 /* ─── Main Page ─────────────────────────────────────────────────────────────── */
 export default function Home() {
   console.log('Home component rendered - checking for updates');
-  const [lang,          setLang]          = useState('en');
-  const [activeIndex,   setActiveIndex]   = useState(0);
-  const [scrollProgress,setScrollProgress]= useState(0);
-  const [videoOpacity,  setVideoOpacity]  = useState(1);
-  const [videoReady,    setVideoReady]    = useState(false);
+  const [lang,             setLang]             = useState('en');
+  const [activeIndex,      setActiveIndex]      = useState(0);
+  const [scrollProgress,   setScrollProgress]   = useState(0);
+  const [videoOpacity,     setVideoOpacity]     = useState(1);
+  const [videoReady,       setVideoReady]       = useState(false);
+
+  // Shop Catalog states
+  const [searchQuery,      setSearchQuery]      = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('Semua Kategori');
+  const [isDropdownOpen,   setIsDropdownOpen]   = useState(false);
+  const [isInShop,         setIsInShop]         = useState(false);
+  const [isShopDocked,     setIsShopDocked]     = useState(false);
 
   const videoRef        = useRef(null);
   const checkpointRefs  = useRef([]);   // invisible block divs – provide scroll height
   const activeIndexRef  = useRef(0);    // mirrors activeIndex for the wheel stepper
+  const shopSectionRef  = useRef(null);
+  const categoryBarRef  = useRef(null);
 
   const t = TRANSLATIONS[lang];
   const sections = t.lines.length;
-  const isUsingNewVideo = activeIndex === sections - 1;
-  const videoSrc = isUsingNewVideo ? "/videos/Video Project 3.mp4" : "/videos/scene-01.mp4";
+  
+  let videoSrc = "/videos/scene-01.mp4";
+  if (activeIndex === 2) {
+    videoSrc = "/videos/Video Project 3.mp4";
+  } else if (activeIndex === 3) {
+    videoSrc = "/videos/scene-04.mp4";
+  } else if (activeIndex === 4) {
+    videoSrc = "";
+  } else if (activeIndex === 5) {
+    videoSrc = "/videos/scene-05.mp4";
+  }
 
-  /* ── Video: 0.75x speed, ping-pong playback (forward ↔ reverse) ─────────
-     Manual reverse via seek, because browsers don't support negative
-     playbackRate reliably (would freeze at the end). */
+  /* ── Video: normal playback, endless looping ───────── */
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-
-    video.loop = false;
-    video.playbackRate = 0.75;
-
-    const SPEED = 0.75;
-    const FRAME_STEP = SPEED / 60; // ~0.0125s per frame at 60fps → same 0.75x speed
-
-    let forward = true;
-    let raf = null;
-
-    const step = () => {
-      raf = requestAnimationFrame(step);
-
-      const ready = video.duration && video.duration !== Infinity;
-      if (!ready) return;
-
-      if (forward) {
-        if (video.currentTime >= video.duration - 0.03) {
-          // Reached the end → reverse
-          forward = false;
-          video.pause();
-        }
-      } else {
-        // Reverse: step the timeline backwards
-        video.currentTime = Math.max(0, video.currentTime - FRAME_STEP);
-        if (video.currentTime <= 0) {
-          video.currentTime = 0;
-          forward = true;
-          video.playbackRate = SPEED;
-          video.play().catch(() => {/* ignore */});
-        }
-      }
-    };
-
-    video.play().catch(() => {/* ignore */});
-    raf = requestAnimationFrame(step);
-
-    return () => cancelAnimationFrame(raf);
+    video.playbackRate = 1.0;
   }, []);
 
-  /* ── Scroll → active sentence + progress + video fade ────────────────── */
+  /* ── Close category dropdown when clicking outside ── */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (categoryBarRef.current && !categoryBarRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
+  /* ── Filtered Products (Search + Category) ────────── */
+  const filteredProducts = useMemo(() => {
+    return PRODUCTS.filter((item) => {
+      const matchCat =
+        selectedCategory === 'Semua Kategori' ||
+        item.category.toLowerCase() === selectedCategory.toLowerCase();
+
+      const q = searchQuery.trim().toLowerCase();
+      const matchSearch =
+        q === '' ||
+        item.name.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q);
+
+      return matchCat && matchSearch;
+    });
+  }, [selectedCategory, searchQuery]);
+
+  /* ── Scroll → active sentence + progress + shop detection ─────────── */
   useEffect(() => {
     const onScroll = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const scrollY = window.pageYOffset;
+      const shopEl = shopSectionRef.current;
+      const shopTop = shopEl ? shopEl.offsetTop : document.documentElement.scrollHeight;
 
-      const progress = maxScroll > 0 ? Math.min(Math.max(scrollY / maxScroll, 0), 1) : 0;
-      const step = maxScroll / (sections - 1);
-      const active = step > 0 ? Math.min(Math.round(scrollY / step), sections - 1) : 0;
+      const inShop = scrollY >= shopTop - window.innerHeight * 0.45;
+      setIsInShop(inShop);
 
-      activeIndexRef.current = active;
-      setActiveIndex(active);
-      setScrollProgress(progress);
+      const shopOffset = scrollY - shopTop;
+      setIsShopDocked(shopOffset > 60);
 
-      // Video logic:
-      // - For the NEW last section (index = sections-1): show the new video (Video Project 3.mp4)
-      // - For the ORIGINAL last section (index = sections-2): fade to dark (preserve original behavior)
-      // - For all other sections: show the original video (scene-01.mp4)
-      if (active === sections - 1) {
-        // New last section: show new video
-        setVideoOpacity(1);
-      } else if (active === sections - 2) {
-        // Original last section: fade to dark (preserve original behavior)
-        setVideoOpacity(0);
+      if (scrollY < shopTop) {
+        const narrativeScrollHeight = Math.max(shopTop - window.innerHeight, 1);
+        const progress = Math.min(Math.max(scrollY / narrativeScrollHeight, 0), 1);
+        const step = narrativeScrollHeight / (sections - 1);
+        const active = step > 0 ? Math.min(Math.round(scrollY / step), sections - 1) : 0;
+
+        activeIndexRef.current = active;
+        setActiveIndex(active);
+        setScrollProgress(progress);
       } else {
-        // All other sections: show original video
-        setVideoOpacity(1);
+        activeIndexRef.current = sections - 1;
+        setActiveIndex(sections - 1);
+        setScrollProgress(1);
       }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     requestAnimationFrame(onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sections]);
 
-  /* ── Desktop wheel stepper: 1 wheel tick = 1 sentence ─────────────────── */
+  const scrollToSentence = useCallback((idx) => {
+    const target = Math.min(Math.max(idx, 0), sections - 1);
+    const shopEl = shopSectionRef.current;
+    const shopTop = shopEl ? shopEl.offsetTop : document.documentElement.scrollHeight;
+    const narrativeScrollHeight = Math.max(shopTop - window.innerHeight, 1);
+    const top = (target / (sections - 1)) * narrativeScrollHeight;
+    activeIndexRef.current = target;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }, [sections]);
+
+  /* ── Desktop wheel stepper: narrative tick vs shop free-scroll ───── */
   useEffect(() => {
-    // Only intercept the wheel on fine-pointer (desktop) devices
     const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     if (!isFinePointer) return;
 
     let cooldown = false;
 
     const onWheel = (e) => {
-      // Desktop scrolling is fully controlled here
-      e.preventDefault();
+      const scrollY = window.pageYOffset;
+      const shopEl = shopSectionRef.current;
+      const shopTop = shopEl ? shopEl.offsetTop : document.documentElement.scrollHeight;
 
+      // Inside shop catalog
+      if (scrollY >= shopTop - 20) {
+        // At the very top of shop and scrolling upwards with intent
+        if (scrollY <= shopTop + 15 && e.deltaY < -20) {
+          e.preventDefault();
+          if (cooldown) return;
+          scrollToSentence(sections - 1);
+          cooldown = true;
+          setTimeout(() => { cooldown = false; }, 600);
+          return;
+        }
+        // Allow natural browser scrolling
+        return;
+      }
+
+      // In narrative: 1 wheel tick = 1 sentence
+      e.preventDefault();
       if (cooldown) return;
 
       const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
       if (Math.abs(delta) < 10) return; // ignore jitter
 
       const dir = delta > 0 ? 1 : -1;
+
+      // At last sentence and scrolling down -> scroll into shop catalog!
+      if (activeIndexRef.current === sections - 1 && dir > 0) {
+        if (shopEl) {
+          window.scrollTo({ top: shopTop, behavior: 'smooth' });
+        }
+        cooldown = true;
+        setTimeout(() => { cooldown = false; }, 700);
+        return;
+      }
+
       const next = Math.min(Math.max(activeIndexRef.current + dir, 0), sections - 1);
       if (next === activeIndexRef.current) return;
 
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const top = maxScroll > 0 ? (next / (sections - 1)) * maxScroll : 0;
-      window.scrollTo({ top, behavior: 'smooth' });
-
+      scrollToSentence(next);
       cooldown = true;
       setTimeout(() => { cooldown = false; }, 600);
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sections, scrollToSentence]);
 
   const toggleLang = useCallback(
     () => setLang((p) => (p === 'en' ? 'id' : 'en')),
     []
   );
-
-  const scrollToSentence = useCallback((idx) => {
-    const target = Math.min(Math.max(idx, 0), sections - 1);
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const top = maxScroll > 0 ? (target / (sections - 1)) * maxScroll : 0;
-    activeIndexRef.current = target;
-    window.scrollTo({ top, behavior: 'smooth' });
-  }, [sections]);
 
   return (
     <main className={styles.main}>
@@ -277,14 +482,14 @@ export default function Home() {
         <video
           ref={videoRef}
           className={styles.videoBg}
-          src={videoSrc}
+          src={videoSrc || undefined}
           autoPlay
           muted
+          loop
           playsInline
           preload="auto"
           style={{
-            opacity: videoReady ? 1 : 0,
-            // subtle scroll-linked zoom effect
+            opacity: (videoReady && videoSrc) ? 1 : 0,
             transform: `scale(${1 + scrollProgress * 0.08})`,
           }}
           onLoadedData={() => setVideoReady(true)}
@@ -298,9 +503,15 @@ export default function Home() {
         ── Fixed centered text overlay ──
         ALL sentences sit at the EXACT same center position.
         Only the active one is visible (opacity 1), others are opacity 0.
-        No position change → pure cross-fade.
       */}
-      <div className={styles.textOverlay}>
+      <div
+        className={styles.textOverlay}
+        style={{
+          opacity: isInShop ? 0 : 1,
+          pointerEvents: 'none',
+          transition: 'opacity 0.4s ease',
+        }}
+      >
         {t.lines.map((line, idx) => (
           <div
             key={idx}
@@ -315,7 +526,15 @@ export default function Home() {
       </div>
 
       {/* ── Sentence navigation rail (clickable dots) ── */}
-      <nav className={styles.scrollRail} aria-label="Navigasi kalimat">
+      <nav
+        className={styles.scrollRail}
+        style={{
+          opacity: isInShop ? 0 : 1,
+          pointerEvents: isInShop ? 'none' : 'auto',
+          transition: 'opacity 0.4s ease',
+        }}
+        aria-label="Navigasi kalimat"
+      >
         {t.lines.map((_, idx) => (
           <button
             key={idx}
@@ -331,7 +550,7 @@ export default function Home() {
       {/* ── Scroll hint (fades after the first sentence) ── */}
       <div
         className={`${styles.scrollHint} ${
-          activeIndex > 0 ? styles.scrollHintHidden : ''
+          activeIndex > 0 || isInShop ? styles.scrollHintHidden : ''
         }`}
       >
         <span className={styles.scrollHintLabel}>SCROLL</span>
@@ -354,6 +573,157 @@ export default function Home() {
           />
         ))}
       </div>
+
+      {/* ── Sesi Katalog Toko Rempah Nusantara ── */}
+      <section
+        ref={shopSectionRef}
+        className={styles.shopSection}
+        id="katalog-toko"
+      >
+        <div className={styles.shopSectionInner}>
+
+          {/* Sticky Controls Header: Search Bar + Category Bar */}
+          <div className={`${styles.shopStickyHeader} ${isShopDocked ? styles.headerDocked : ''}`}>
+            
+            {/* Search Bar: Large at first, shrinks as user scrolls */}
+            <div className={`${styles.searchBarWrapper} ${isShopDocked ? styles.searchBarDocked : styles.searchBarHero}`}>
+              <div className={styles.searchInner}>
+                <span className={styles.searchIcon} aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={lang === 'id' ? 'Cari rempah, olahan pangan, atau kerajinan...' : 'Search spices, foods, or handicrafts...'}
+                  className={styles.searchInput}
+                  aria-label="Cari barang"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className={styles.clearSearchBtn}
+                    aria-label="Bersihkan pencarian"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Category Bar: Kotak memanjang di bawah search bar, muncul perlahan saat scroll */}
+            <div
+              ref={categoryBarRef}
+              className={`${styles.categoryBarContainer} ${isShopDocked ? styles.categoryBarVisible : styles.categoryBarHidden}`}
+            >
+              <button
+                type="button"
+                className={styles.categoryBarBox}
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                aria-expanded={isDropdownOpen}
+                aria-haspopup="listbox"
+              >
+                <div className={styles.categoryBarLeft}>
+                  <span className={styles.categoryOrnament}>✦</span>
+                  <span className={styles.categoryBarLabel}>
+                    {lang === 'id' ? 'Kategori Produk' : 'Product Category'}
+                  </span>
+                  <span className={styles.categorySeparator}>|</span>
+                  <span className={styles.categoryCurrent}>
+                    {selectedCategory}
+                  </span>
+                </div>
+                <div className={styles.categoryBarRight}>
+                  <span className={styles.categoryCountBadge}>
+                    {filteredProducts.length} {lang === 'id' ? 'Barang' : 'Items'}
+                  </span>
+                  <span className={`${styles.categoryChevron} ${isDropdownOpen ? styles.chevronOpen : ''}`}>
+                    ▼
+                  </span>
+                </div>
+              </button>
+
+              {/* Dropdown Menu Kategori */}
+              {isDropdownOpen && (
+                <div className={styles.categoryDropdownMenu} role="listbox">
+                  {CATEGORIES.map((cat) => {
+                    const count = cat === 'Semua Kategori'
+                      ? PRODUCTS.length
+                      : PRODUCTS.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
+                    const isSelected = selectedCategory === cat;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        className={`${styles.dropdownOption} ${isSelected ? styles.dropdownOptionActive : ''}`}
+                        onClick={() => {
+                          setSelectedCategory(cat);
+                          setIsDropdownOpen(false);
+                        }}
+                        role="option"
+                        aria-selected={isSelected}
+                      >
+                        <span className={styles.dropdownOptionName}>
+                          {isSelected ? '● ' : '○ '} {cat}
+                        </span>
+                        <span className={styles.dropdownOptionCount}>
+                          ({count} {lang === 'id' ? 'item' : 'items'})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Item Cards Grid */}
+          <div className={styles.catalogContent}>
+            {filteredProducts.length > 0 ? (
+              <div className={styles.cardsGrid}>
+                {filteredProducts.map((item) => (
+                  <div key={item.id} className={styles.itemCard}>
+                    <div className={styles.cardFrame}>
+                      <div className={styles.cardInner}>
+                        <div className={styles.imageContainer}>
+                          <img
+                            src={encodeURI(item.image)}
+                            alt={item.name}
+                            className={styles.itemImage}
+                            loading="lazy"
+                          />
+                          <div className={styles.imageOverlay} />
+                        </div>
+                        <div className={styles.cardBottom}>
+                          <h3 className={styles.itemName}>{item.name}</h3>
+                          <div className={styles.itemOrnament} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptyState}>
+                <p className={styles.emptyTitle}>
+                  {lang === 'id' ? 'Barang Tidak Ditemukan' : 'No Items Found'}
+                </p>
+                <p className={styles.emptySubtitle}>
+                  {lang === 'id'
+                    ? 'Coba gunakan kata kunci lain atau pilih kategori yang berbeda.'
+                    : 'Try another keyword or select a different category.'}
+                </p>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </section>
 
     </main>
   );
