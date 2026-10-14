@@ -105,95 +105,94 @@ const TRANSLATIONS = {
 
 /* ─── Product Catalog Data ─────────────────────────────────────────────────── */
 const CATEGORIES = [
-  'Semua Kategori',
-  'Rempah',
-  'Olahan bahan makanan',
-  'Kerajinan',
+  { id: 'Rempah', label: { id: 'Rempah', en: 'Spices' } },
+  { id: 'Olahan bahan makanan', label: { id: 'Olahan Bahan Makanan', en: 'Processed Foods' } },
+  { id: 'Kerajinan', label: { id: 'Kerajinan', en: 'Handicrafts' } },
 ];
 
 const PRODUCTS = [
   // Rempah
   {
     id: 'bawang-merah',
-    name: 'Bawang Merah',
+    name: { id: 'Bawang Merah', en: 'Shallots' },
     category: 'Rempah',
     image: '/Pictures/rempah/bawang merah.webp',
   },
   {
     id: 'bunga-lawang',
-    name: 'Bunga Lawang',
+    name: { id: 'Bunga Lawang', en: 'Star Anise' },
     category: 'Rempah',
     image: '/Pictures/rempah/bunga lawang.webp',
   },
   {
     id: 'cabai-kering',
-    name: 'Cabai Kering',
+    name: { id: 'Cabai Kering', en: 'Dried Chili' },
     category: 'Rempah',
     image: '/Pictures/rempah/cabai kering.webp',
   },
   {
     id: 'cengkeh',
-    name: 'Cengkeh',
+    name: { id: 'Cengkeh', en: 'Cloves' },
     category: 'Rempah',
     image: '/Pictures/rempah/cengkeh.webp',
   },
   {
     id: 'daun-salam-kering',
-    name: 'Daun Salam Kering',
+    name: { id: 'Daun Salam Kering', en: 'Dried Bay Leaves' },
     category: 'Rempah',
     image: '/Pictures/rempah/daun salam kering.webp',
   },
   {
     id: 'jintan',
-    name: 'Jintan',
+    name: { id: 'Jintan', en: 'Cumin' },
     category: 'Rempah',
     image: '/Pictures/rempah/jintan.webp',
   },
   {
     id: 'kayu-manis',
-    name: 'Kayu Manis',
+    name: { id: 'Kayu Manis', en: 'Cinnamon' },
     category: 'Rempah',
     image: '/Pictures/rempah/kayu manis.webp',
   },
   {
     id: 'kemiri',
-    name: 'Kemiri',
+    name: { id: 'Kemiri', en: 'Candlenut' },
     category: 'Rempah',
     image: '/Pictures/rempah/kemiri.webp',
   },
   {
     id: 'ketumbar',
-    name: 'Ketumbar',
+    name: { id: 'Ketumbar', en: 'Coriander' },
     category: 'Rempah',
     image: '/Pictures/rempah/ketumbar.webp',
   },
   {
     id: 'kunyit',
-    name: 'Kunyit',
+    name: { id: 'Kunyit', en: 'Turmeric' },
     category: 'Rempah',
     image: '/Pictures/rempah/kunyit.webp',
   },
   {
     id: 'lada-hitam',
-    name: 'Lada Hitam',
+    name: { id: 'Lada Hitam', en: 'Black Pepper' },
     category: 'Rempah',
     image: '/Pictures/rempah/lada hitam.webp',
   },
   {
     id: 'lengkuas',
-    name: 'Lengkuas',
+    name: { id: 'Lengkuas', en: 'Galangal' },
     category: 'Rempah',
     image: '/Pictures/rempah/lengkuas.webp',
   },
   {
     id: 'pala',
-    name: 'Pala',
+    name: { id: 'Pala', en: 'Nutmeg' },
     category: 'Rempah',
     image: '/Pictures/rempah/pala.webp',
   },
   {
     id: 'serai',
-    name: 'Serai',
+    name: { id: 'Serai', en: 'Lemongrass' },
     category: 'Rempah',
     image: '/Pictures/rempah/serai.webp',
   },
@@ -201,31 +200,31 @@ const PRODUCTS = [
   // Olahan bahan makanan
   {
     id: 'cireng',
-    name: 'Cireng',
+    name: { id: 'Cireng', en: 'Cireng' },
     category: 'Olahan bahan makanan',
     image: '/Pictures/Olahan bahan makanan/cireng.webp',
   },
   {
     id: 'emping',
-    name: 'Emping',
+    name: { id: 'Emping', en: 'Emping (Melinjo Crackers)' },
     category: 'Olahan bahan makanan',
     image: '/Pictures/Olahan bahan makanan/emping.webp',
   },
   {
     id: 'kerupuk-rambak',
-    name: 'Kerupuk Rambak',
+    name: { id: 'Kerupuk Rambak', en: 'Skin Crackers' },
     category: 'Olahan bahan makanan',
     image: '/Pictures/Olahan bahan makanan/kerupuk rambak.webp',
   },
   {
     id: 'kerupuk-udang',
-    name: 'Kerupuk Udang',
+    name: { id: 'Kerupuk Udang', en: 'Prawn Crackers' },
     category: 'Olahan bahan makanan',
     image: '/Pictures/Olahan bahan makanan/kerupuk udang.webp',
   },
   {
     id: 'pempek',
-    name: 'Pempek',
+    name: { id: 'Pempek', en: 'Pempek (Fish Cake)' },
     category: 'Olahan bahan makanan',
     image: '/Pictures/Olahan bahan makanan/pempek.webp',
   },
@@ -233,37 +232,37 @@ const PRODUCTS = [
   // Kerajinan
   {
     id: 'arang-briket-kubus',
-    name: 'Arang Briket Kubus',
+    name: { id: 'Arang Briket Kubus', en: 'Cube Charcoal Briquettes' },
     category: 'Kerajinan',
     image: '/Pictures/Kerajinan/Arang Briket kubus.webp',
   },
   {
     id: 'dupa-kerucut',
-    name: 'Dupa Kerucut',
+    name: { id: 'Dupa Kerucut', en: 'Cone Incense' },
     category: 'Kerajinan',
     image: '/Pictures/Kerajinan/dupa kerucut.webp',
   },
   {
     id: 'baju-baduy-jokowi',
-    name: 'Baju Baduy Model Jokowi',
+    name: { id: 'Baju Baduy Model Jokowi', en: 'Jokowi Model Baduy Shirt' },
     category: 'Kerajinan',
     image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju baduy jokowi.webp',
   },
   {
     id: 'set-baju-baduy-hitam',
-    name: 'Set Baju Baduy Hitam',
+    name: { id: 'Set Baju Baduy Hitam', en: 'Black Baduy Shirt Set' },
     category: 'Kerajinan',
     image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju hitam (gambar katalog).webp',
   },
   {
     id: 'set-baju-baduy-putih',
-    name: 'Set Baju Baduy Putih',
+    name: { id: 'Set Baju Baduy Putih', en: 'White Baduy Shirt Set' },
     category: 'Kerajinan',
-    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model baju putih.webp',
+    image: '/Pictures/Kerajinan/SET BAJU BADUY/Model putih.webp',
   },
   {
     id: 'set-baju-baduy-pria',
-    name: 'Set Baju Baduy Model Pria',
+    name: { id: 'Set Baju Baduy Model Pria', en: 'Men Model Baduy Shirt' },
     category: 'Kerajinan',
     image: '/Pictures/Kerajinan/SET BAJU BADUY/Model pria (gambar katalog).webp',
   },
@@ -279,17 +278,17 @@ export default function Home() {
   const [videoReady,       setVideoReady]       = useState(false);
 
   // Shop Catalog states
-  const [searchQuery,      setSearchQuery]      = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua Kategori');
-  const [isDropdownOpen,   setIsDropdownOpen]   = useState(false);
-  const [isInShop,         setIsInShop]         = useState(false);
-  const [isShopDocked,     setIsShopDocked]     = useState(false);
+  const [searchQuery,            setSearchQuery]            = useState('');
+  const [isInShop,               setIsInShop]               = useState(false);
+  const [isShopDocked,           setIsShopDocked]           = useState(false);
+  const [shopTransitionProgress, setShopTransitionProgress] = useState(0);
+  const [activeDropdownCat,      setActiveDropdownCat]      = useState(null);
 
   const videoRef        = useRef(null);
   const checkpointRefs  = useRef([]);   // invisible block divs – provide scroll height
   const activeIndexRef  = useRef(0);    // mirrors activeIndex for the wheel stepper
   const shopSectionRef  = useRef(null);
-  const categoryBarRef  = useRef(null);
+  const categoryBlockRefs = useRef({});
 
   const t = TRANSLATIONS[lang];
   const sections = t.lines.length;
@@ -312,39 +311,29 @@ export default function Home() {
     video.playbackRate = 1.0;
   }, []);
 
-  /* ── Close category dropdown when clicking outside ── */
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (categoryBarRef.current && !categoryBarRef.current.contains(e.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('touchstart', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
-
-  /* ── Filtered Products (Search + Category) ────────── */
+  /* ── Filtered Products (Search) ────────── */
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((item) => {
-      const matchCat =
-        selectedCategory === 'Semua Kategori' ||
-        item.category.toLowerCase() === selectedCategory.toLowerCase();
-
       const q = searchQuery.trim().toLowerCase();
-      const matchSearch =
+      return (
         q === '' ||
-        item.name.toLowerCase().includes(q) ||
-        item.category.toLowerCase().includes(q);
-
-      return matchCat && matchSearch;
+        item.name.id.toLowerCase().includes(q) ||
+        item.name.en.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q)
+      );
     });
-  }, [selectedCategory, searchQuery]);
+  }, [searchQuery]);
+
+  /* ── Close dropdown when clicking outside ── */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(`.${styles.stickyCategoryBar}`)) {
+        setActiveDropdownCat(null);
+      }
+    };
+    window.addEventListener('click', handleClickOutside);
+    return () => window.removeEventListener('click', handleClickOutside);
+  }, []);
 
   /* ── Scroll → active sentence + progress + shop detection ─────────── */
   useEffect(() => {
@@ -358,6 +347,13 @@ export default function Home() {
 
       const shopOffset = scrollY - shopTop;
       setIsShopDocked(shopOffset > 60);
+
+      if (shopOffset >= 0) {
+        const progress = Math.min(shopOffset / 550, 1);
+        setShopTransitionProgress(progress);
+      } else {
+        setShopTransitionProgress(0);
+      }
 
       if (scrollY < shopTop) {
         const narrativeScrollHeight = Math.max(shopTop - window.innerHeight, 1);
@@ -389,6 +385,15 @@ export default function Home() {
     activeIndexRef.current = target;
     window.scrollTo({ top, behavior: 'smooth' });
   }, [sections]);
+
+  const scrollToCategory = useCallback((catId) => {
+    setActiveDropdownCat(null);
+    const el = categoryBlockRefs.current[catId];
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.pageYOffset - 85;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, []);
 
   /* ── Desktop wheel stepper: narrative tick vs shop free-scroll ───── */
   useEffect(() => {
@@ -580,16 +585,25 @@ export default function Home() {
         className={styles.shopSection}
         id="katalog-toko"
       >
+        <div 
+          className={styles.shopPaperBg}
+          style={{ opacity: shopTransitionProgress }} 
+        />
         <div className={styles.shopSectionInner}>
-
-          {/* Sticky Controls Header: Search Bar + Category Bar */}
-          <div className={`${styles.shopStickyHeader} ${isShopDocked ? styles.headerDocked : ''}`}>
-            
-            {/* Search Bar: Large at first, shrinks as user scrolls */}
-            <div className={`${styles.searchBarWrapper} ${isShopDocked ? styles.searchBarDocked : styles.searchBarHero}`}>
+          
+          {/* Sticky Controls Header: YouTube-style Search Bar */}
+          <div 
+            className={`${styles.shopStickyHeader} ${shopTransitionProgress > 0.85 ? styles.headerDocked : ''}`}
+            style={{
+              paddingTop: `calc(${Math.max(12, 42 - shopTransitionProgress * 38)}vh)`,
+              paddingBottom: `calc(${Math.max(12, 42 - shopTransitionProgress * 38)}vh)`,
+              backgroundColor: `rgba(10, 8, 6, ${1 - shopTransitionProgress})`
+            }}
+          >
+            <div className={`${styles.searchBarWrapper} ${shopTransitionProgress > 0.85 ? styles.searchBarDocked : styles.searchBarHero}`}>
               <div className={styles.searchInner}>
                 <span className={styles.searchIcon} aria-hidden="true">
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" />
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
@@ -598,7 +612,7 @@ export default function Home() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={lang === 'id' ? 'Cari rempah, olahan pangan, atau kerajinan...' : 'Search spices, foods, or handicrafts...'}
+                  placeholder="let me fill your kitchen"
                   className={styles.searchInput}
                   aria-label="Cari barang"
                 />
@@ -612,102 +626,131 @@ export default function Home() {
                     ✕
                   </button>
                 )}
+                <button
+                  type="button"
+                  className={styles.searchSubmitBtn}
+                  aria-label="Cari"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </button>
               </div>
             </div>
-
-            {/* Category Bar: Kotak memanjang di bawah search bar, muncul perlahan saat scroll */}
-            <div
-              ref={categoryBarRef}
-              className={`${styles.categoryBarContainer} ${isShopDocked ? styles.categoryBarVisible : styles.categoryBarHidden}`}
-            >
-              <button
-                type="button"
-                className={styles.categoryBarBox}
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                aria-expanded={isDropdownOpen}
-                aria-haspopup="listbox"
-              >
-                <div className={styles.categoryBarLeft}>
-                  <span className={styles.categoryOrnament}>✦</span>
-                  <span className={styles.categoryBarLabel}>
-                    {lang === 'id' ? 'Kategori Produk' : 'Product Category'}
-                  </span>
-                  <span className={styles.categorySeparator}>|</span>
-                  <span className={styles.categoryCurrent}>
-                    {selectedCategory}
-                  </span>
-                </div>
-                <div className={styles.categoryBarRight}>
-                  <span className={styles.categoryCountBadge}>
-                    {filteredProducts.length} {lang === 'id' ? 'Barang' : 'Items'}
-                  </span>
-                  <span className={`${styles.categoryChevron} ${isDropdownOpen ? styles.chevronOpen : ''}`}>
-                    ▼
-                  </span>
-                </div>
-              </button>
-
-              {/* Dropdown Menu Kategori */}
-              {isDropdownOpen && (
-                <div className={styles.categoryDropdownMenu} role="listbox">
-                  {CATEGORIES.map((cat) => {
-                    const count = cat === 'Semua Kategori'
-                      ? PRODUCTS.length
-                      : PRODUCTS.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
-                    const isSelected = selectedCategory === cat;
-                    return (
-                      <button
-                        key={cat}
-                        type="button"
-                        className={`${styles.dropdownOption} ${isSelected ? styles.dropdownOptionActive : ''}`}
-                        onClick={() => {
-                          setSelectedCategory(cat);
-                          setIsDropdownOpen(false);
-                        }}
-                        role="option"
-                        aria-selected={isSelected}
-                      >
-                        <span className={styles.dropdownOptionName}>
-                          {isSelected ? '● ' : '○ '} {cat}
-                        </span>
-                        <span className={styles.dropdownOptionCount}>
-                          ({count} {lang === 'id' ? 'item' : 'items'})
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
           </div>
 
-          {/* Item Cards Grid */}
-          <div className={styles.catalogContent}>
+          {/* Spacer so the search bar moves upward as user scrolls */}
+          <div style={{ height: '50vh' }} />
+
+          {/* Item Cards Grid Grouped */}
+          <div 
+            className={styles.catalogContent}
+            style={{
+              opacity: Math.max(0, (shopTransitionProgress - 0.15) / 0.85),
+              transform: `translateY(${(1 - shopTransitionProgress) * 120}px)`,
+              pointerEvents: shopTransitionProgress > 0.2 ? 'auto' : 'none'
+            }}
+          >
             {filteredProducts.length > 0 ? (
-              <div className={styles.cardsGrid}>
-                {filteredProducts.map((item) => (
-                  <div key={item.id} className={styles.itemCard}>
-                    <div className={styles.cardFrame}>
-                      <div className={styles.cardInner}>
-                        <div className={styles.imageContainer}>
-                          <img
-                            src={encodeURI(item.image)}
-                            alt={item.name}
-                            className={styles.itemImage}
-                            loading="lazy"
-                          />
-                          <div className={styles.imageOverlay} />
-                        </div>
-                        <div className={styles.cardBottom}>
-                          <h3 className={styles.itemName}>{item.name}</h3>
-                          <div className={styles.itemOrnament} />
-                        </div>
+              CATEGORIES.map((categoryObj) => {
+                const catProducts = filteredProducts.filter(p => p.category === categoryObj.id);
+                if (catProducts.length === 0) return null;
+                const isDropdownOpen = activeDropdownCat === categoryObj.id;
+
+                return (
+                  <div 
+                    key={categoryObj.id} 
+                    ref={(el) => (categoryBlockRefs.current[categoryObj.id] = el)}
+                    className={styles.categoryBlock}
+                  >
+                    <div 
+                      className={styles.stickyCategoryBar}
+                      onClick={() => setActiveDropdownCat(isDropdownOpen ? null : categoryObj.id)}
+                      role="button"
+                      tabIndex={0}
+                      aria-haspopup="listbox"
+                      aria-expanded={isDropdownOpen}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setActiveDropdownCat(isDropdownOpen ? null : categoryObj.id);
+                        }
+                      }}
+                    >
+                      <div className={styles.categoryBarLeft}>
+                        <span className={styles.categoryOrnament}>✦</span>
+                        <span className={styles.categoryTitle}>{categoryObj.label[lang]}</span>
+                        <span className={`${styles.categoryChevron} ${isDropdownOpen ? styles.chevronOpen : ''}`}>
+                          ▼
+                        </span>
                       </div>
+                      <div className={styles.categoryBarRight}>
+                        <span className={styles.categoryCountBadge}>
+                          {catProducts.length} {lang === 'id' ? 'Barang' : 'Items'}
+                        </span>
+                      </div>
+
+                      {/* Interactive Dropdown Menu */}
+                      {isDropdownOpen && (
+                        <div 
+                          className={styles.categoryDropdownMenu} 
+                          role="listbox"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className={styles.dropdownHeader}>
+                            <span>{lang === 'id' ? 'PILIH KATEGORI PRODUK' : 'CHOOSE PRODUCT CATEGORY'}</span>
+                          </div>
+                          {CATEGORIES.map((c) => {
+                            const count = filteredProducts.filter(p => p.category === c.id).length;
+                            const isCurrent = c.id === categoryObj.id;
+                            return (
+                              <button
+                                key={c.id}
+                                type="button"
+                                className={`${styles.dropdownOption} ${isCurrent ? styles.dropdownOptionActive : ''}`}
+                                onClick={() => scrollToCategory(c.id)}
+                                role="option"
+                                aria-selected={isCurrent}
+                              >
+                                <span className={styles.dropdownOptionName}>
+                                  {isCurrent ? '● ' : '○ '} {c.label[lang]}
+                                </span>
+                                <span className={styles.dropdownOptionCount}>
+                                  ({count} {lang === 'id' ? 'barang' : 'items'})
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className={styles.cardsGrid}>
+                      {catProducts.map((item) => (
+                        <div key={item.id} className={styles.itemCard}>
+                          <div className={styles.cardFrame}>
+                            <div className={styles.cardInner}>
+                              <div className={styles.imageContainer}>
+                                <img
+                                  src={encodeURI(item.image)}
+                                  alt={item.name[lang]}
+                                  className={styles.itemImage}
+                                  loading="lazy"
+                                />
+                                <div className={styles.imageOverlay} />
+                              </div>
+                              <div className={styles.cardBottom}>
+                                <h3 className={styles.itemName}>{item.name[lang]}</h3>
+                                <div className={styles.itemOrnament} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })
             ) : (
               <div className={styles.emptyState}>
                 <p className={styles.emptyTitle}>
@@ -715,8 +758,8 @@ export default function Home() {
                 </p>
                 <p className={styles.emptySubtitle}>
                   {lang === 'id'
-                    ? 'Coba gunakan kata kunci lain atau pilih kategori yang berbeda.'
-                    : 'Try another keyword or select a different category.'}
+                    ? 'Coba gunakan kata kunci lain.'
+                    : 'Try another keyword.'}
                 </p>
               </div>
             )}
