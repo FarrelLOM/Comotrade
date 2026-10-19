@@ -1,0 +1,23 @@
+.page { min-height:100dvh; padding:110px clamp(16px,4vw,56px) 60px; background:#0A0806; color:#F5E6C8; }
+.header { max-width:1200px; margin:0 auto 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.brand { color:#C9A84C; text-decoration:none; font-size:11px; letter-spacing:.18em; font-weight:700; }
+.header h1 { margin:12px 0 4px; font:700 clamp(30px,5vw,44px)/1.1 'Playfair Display',Georgia,serif; }
+.header p,.panel p { color:rgba(245,230,200,.68); font-size:13px; line-height:1.6; }
+.headerActions { display:flex; flex-wrap:wrap; gap:10px; }
+.panel { max-width:1200px; margin:18px auto; padding:clamp(20px,3vw,32px); border:1px solid rgba(201,168,76,.25); border-radius:18px; background:rgba(23,18,13,.92); }
+.panel h2 { margin:0 0 18px; color:#F5E6C8; font:600 24px 'Playfair Display',Georgia,serif; }
+.button,.secondary { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 15px; border-radius:9px; font-weight:700; cursor:pointer; text-decoration:none; }
+.button { border:1px solid #C9A84C; background:#C9A84C; color:#140f08; }.secondary { border:1px solid rgba(201,168,76,.45); background:transparent; color:#F5E6C8; }
+.button:disabled { opacity:.5; cursor:wait; }
+.productForm { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+.productForm label,.reviewForm { display:grid; gap:7px; color:rgba(245,230,200,.8); font-size:12px; }
+.productForm input,.productForm textarea,.inlineForm input,.adminOrderForm input,.adminOrderForm select,.reviewForm input,.reviewForm select,.messageForm textarea { width:100%; padding:11px 12px; border:1px solid rgba(201,168,76,.28); border-radius:8px; background:#100d0a; color:#F5E6C8; }
+.full { grid-column:1/-1; }.productForm textarea,.messageForm textarea { resize:vertical; }
+.list { display:grid; gap:14px; }.order,.conversation { padding:18px; border:1px solid rgba(201,168,76,.18); border-radius:12px; background:rgba(0,0,0,.16); }
+.orderHead { display:flex; justify-content:space-between; gap:12px; margin-bottom:12px; color:#D4A017; text-transform:capitalize; }
+.order ul { padding-left:20px; margin:10px 0; color:rgba(245,230,200,.8); font-size:13px; line-height:1.8; }
+.order a { color:#D4A017; }.inlineForm,.adminOrderForm,.reviewForm { display:flex; flex-wrap:wrap; gap:9px; margin-top:14px; }.inlineForm input { flex:1 1 220px; }.adminOrderForm > * { flex:1 1 130px; }.reviewForm { align-items:center; }.reviewForm span { flex:1 1 100%; }.reviewForm input { flex:1 1 180px; }
+.conversation { margin:12px 0; }.conversation p { padding:5px 0; }.conversationTitle { margin-bottom:8px; border:0; background:none; color:#D4A017; cursor:pointer; font-weight:700; }
+.messageForm { display:grid; gap:10px; margin-top:18px; }.messageForm p { color:rgba(245,230,200,.6); }.messageForm textarea { min-height:90px; }
+.error,.notice { max-width:1200px; margin:14px auto; padding:12px 16px; border-radius:8px; }.error { color:#ffb4a8; background:rgba(160,30,20,.15); }.notice { color:#d6edbd; background:rgba(50,120,50,.15); }
+@media(max-width:680px) { .header { align-items:flex-start; flex-direction:column; }.productForm { grid-template-columns:1fr; }.full { grid-column:auto; }.panel { padding:18px; } }

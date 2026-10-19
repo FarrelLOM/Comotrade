@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 /* ─── Custom Cursor Component ─────────────────────────────────────────────── */
@@ -274,13 +275,12 @@ export default function Home() {
   const [lang,             setLang]             = useState('en');
   const [activeIndex,      setActiveIndex]      = useState(0);
   const [scrollProgress,   setScrollProgress]   = useState(0);
-  const [videoOpacity,     setVideoOpacity]     = useState(1);
   const [videoReady,       setVideoReady]       = useState(false);
 
   // Shop Catalog states
   const [searchQuery,            setSearchQuery]            = useState('');
+  const [databaseProducts,       setDatabaseProducts]       = useState([]);
   const [isInShop,               setIsInShop]               = useState(false);
-  const [isShopDocked,           setIsShopDocked]           = useState(false);
   const [shopTransitionProgress, setShopTransitionProgress] = useState(0);
   const [activeDropdownCat,      setActiveDropdownCat]      = useState(null);
 
@@ -288,10 +288,44 @@ export default function Home() {
   const checkpointRefs  = useRef([]);   // invisible block divs – provide scroll height
   const activeIndexRef  = useRef(0);    // mirrors activeIndex for the wheel stepper
   const shopSectionRef  = useRef(null);
+  const hasEnteredMarketplaceRef = useRef(false);
   const categoryBlockRefs = useRef({});
 
   const t = TRANSLATIONS[lang];
+  const allProducts = useMemo(() => {
+    const databaseSlugs = new Set(databaseProducts.map((item) => item.slug));
+    const localProducts = PRODUCTS.filter((item) => !databaseSlugs.has(item.id));
+    const remoteProducts = databaseProducts.map((item) => ({
+      id: item.slug,
+      name: { id: item.name, en: item.name },
+      category: item.category,
+      image: item.image_url,
+    }));
+    return [...localProducts, ...remoteProducts];
+  }, [databaseProducts]);
+  const catalogCategories = useMemo(() => {
+    const categories = new Map(CATEGORIES.map((category) => [category.id, category]));
+    for (const product of databaseProducts) {
+      if (!categories.has(product.category)) {
+        categories.set(product.category, {
+          id: product.category,
+          label: { id: product.category, en: product.category },
+        });
+      }
+    }
+    return [...categories.values()];
+  }, [databaseProducts]);
   const sections = t.lines.length;
+  const shopTransitionDistance = 1000;
+  const marketplaceLockProgress = 0.55;
+  const marketplaceLockOffset = shopTransitionDistance * marketplaceLockProgress;
+  const marketplaceLockTolerance = 1;
+  const blackFadeInProgress = Math.min(shopTransitionProgress / 0.1, 1);
+  const backgroundProgress = Math.min(Math.max((shopTransitionProgress - 0.1) / 0.5, 0), 1);
+  const transitionOverlayOpacity = blackFadeInProgress * (1 - backgroundProgress);
+  const searchRevealProgress = backgroundProgress;
+  const searchMoveProgress = Math.min(Math.max((shopTransitionProgress - 0.55) / 0.4, 0), 1);
+  const catalogRevealProgress = searchMoveProgress;
   
   let videoSrc = "/videos/scene-01.mp4";
   if (activeIndex === 2) {
@@ -311,9 +345,20 @@ export default function Home() {
     video.playbackRate = 1.0;
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products')
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (!cancelled && data?.products) setDatabaseProducts(data.products);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
   /* ── Filtered Products (Search) ────────── */
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((item) => {
+    return allProducts.filter((item) => {
       const q = searchQuery.trim().toLowerCase();
       return (
         q === '' ||
@@ -322,7 +367,7 @@ export default function Home() {
         item.category.toLowerCase().includes(q)
       );
     });
-  }, [searchQuery]);
+  }, [allProducts, searchQuery]);
 
   /* ── Close dropdown when clicking outside ── */
   useEffect(() => {
@@ -338,18 +383,27 @@ export default function Home() {
   /* ── Scroll → active sentence + progress + shop detection ─────────── */
   useEffect(() => {
     const onScroll = () => {
-      const scrollY = window.pageYOffset;
+      let scrollY = window.pageYOffset;
       const shopEl = shopSectionRef.current;
       const shopTop = shopEl ? shopEl.offsetTop : document.documentElement.scrollHeight;
+      const marketplaceLockTop = shopTop + marketplaceLockOffset;
 
-      const inShop = scrollY >= shopTop - window.innerHeight * 0.45;
+      if (hasEnteredMarketplaceRef.current && scrollY < marketplaceLockTop - marketplaceLockTolerance) {
+        window.scrollTo({ top: marketplaceLockTop, behavior: 'instant' });
+        scrollY = marketplaceLockTop;
+      }
+
+      if (scrollY >= shopTop) {
+        hasEnteredMarketplaceRef.current = true;
+      }
+
+      const inShop = scrollY >= shopTop;
       setIsInShop(inShop);
 
       const shopOffset = scrollY - shopTop;
-      setIsShopDocked(shopOffset > 60);
 
       if (shopOffset >= 0) {
-        const progress = Math.min(shopOffset / 550, 1);
+        const progress = Math.min(shopOffset / shopTransitionDistance, 1);
         setShopTransitionProgress(progress);
       } else {
         setShopTransitionProgress(0);
@@ -406,19 +460,20 @@ export default function Home() {
       const scrollY = window.pageYOffset;
       const shopEl = shopSectionRef.current;
       const shopTop = shopEl ? shopEl.offsetTop : document.documentElement.scrollHeight;
+      const marketplaceLockTop = shopTop + marketplaceLockOffset;
+
+      if (hasEnteredMarketplaceRef.current && scrollY < marketplaceLockTop - marketplaceLockTolerance) {
+        e.preventDefault();
+        window.scrollTo({ top: marketplaceLockTop, behavior: 'instant' });
+        return;
+      }
 
       // Inside shop catalog
       if (scrollY >= shopTop - 20) {
-        // At the very top of shop and scrolling upwards with intent
-        if (scrollY <= shopTop + 15 && e.deltaY < -20) {
+        if (hasEnteredMarketplaceRef.current && scrollY <= marketplaceLockTop + 15 && e.deltaY < -20) {
           e.preventDefault();
-          if (cooldown) return;
-          scrollToSentence(sections - 1);
-          cooldown = true;
-          setTimeout(() => { cooldown = false; }, 600);
-          return;
+          window.scrollTo({ top: marketplaceLockTop, behavior: 'instant' });
         }
-        // Allow natural browser scrolling
         return;
       }
 
@@ -471,19 +526,11 @@ export default function Home() {
         aria-hidden="true"
       />
 
-      {/* ── Language toggle ── */}
-      <button
-        className={styles.langToggle}
-        onClick={toggleLang}
-        aria-label="Toggle language"
-      >
-        <span className={styles.langActive}>{lang.toUpperCase()}</span>
-        <span className={styles.langSep}>|</span>
-        <span className={styles.langInactive}>{t.toggleLabel}</span>
-      </button>
-
       {/* ── Fullscreen video background ── */}
-      <div className={styles.videoWrapper} style={{ opacity: videoOpacity }}>
+      <div
+        className={styles.videoWrapper}
+        style={{ opacity: isInShop ? 0 : 1 }}
+      >
         <video
           ref={videoRef}
           className={styles.videoBg}
@@ -585,23 +632,66 @@ export default function Home() {
         className={styles.shopSection}
         id="katalog-toko"
       >
+        {isInShop && (
+          <div
+            className={styles.shopTransitionOverlay}
+            style={{ opacity: transitionOverlayOpacity }}
+            aria-hidden="true"
+          />
+        )}
         <div 
           className={styles.shopPaperBg}
-          style={{ opacity: shopTransitionProgress }} 
+          style={{ opacity: backgroundProgress }}
         />
         <div className={styles.shopSectionInner}>
           
-          {/* Sticky Controls Header: YouTube-style Search Bar */}
-          <div 
-            className={`${styles.shopStickyHeader} ${shopTransitionProgress > 0.85 ? styles.headerDocked : ''}`}
-            style={{
-              paddingTop: `calc(${Math.max(12, 42 - shopTransitionProgress * 38)}vh)`,
-              paddingBottom: `calc(${Math.max(12, 42 - shopTransitionProgress * 38)}vh)`,
-              backgroundColor: `rgba(10, 8, 6, ${1 - shopTransitionProgress})`
-            }}
+          {/* Search bar moves from the center into its sticky header position */}
+          <div
+            className={styles.shopStickyHeader}
           >
-            <div className={`${styles.searchBarWrapper} ${shopTransitionProgress > 0.85 ? styles.searchBarDocked : styles.searchBarHero}`}>
-              <div className={styles.searchInner}>
+            <div
+              className={styles.toolbarFrame}
+              style={{
+                opacity: searchMoveProgress,
+                transform: `translateY(-${(1 - searchMoveProgress) * 18}px) scale(${0.96 + searchMoveProgress * 0.04})`,
+                pointerEvents: searchMoveProgress > 0.1 ? 'auto' : 'none',
+              }}
+              aria-hidden={searchMoveProgress <= 0.1}
+              inert={searchMoveProgress <= 0.1}
+            >
+              <div className={styles.toolbarActions}>
+                <Link className={styles.loginButton} href="/login">
+                  {lang === 'id' ? 'Masuk' : 'Login'}
+                </Link>
+                <button
+                  type="button"
+                  className={styles.toolbarLangToggle}
+                  onClick={toggleLang}
+                  aria-label="Toggle language"
+                >
+                  <span className={styles.langActive}>{lang.toUpperCase()}</span>
+                  <span className={styles.langSep}>|</span>
+                  <span className={styles.langInactive}>{t.toggleLabel}</span>
+                </button>
+              </div>
+            </div>
+
+            <div
+              className={`${styles.searchBarWrapper} ${searchMoveProgress > 0.98 ? styles.searchBarDocked : styles.searchBarHero}`}
+              style={{
+                top: `calc(${(1 - searchMoveProgress) * 50}dvh + ${searchMoveProgress * 49 - 42}px)`,
+                left: `calc(50% - ${searchMoveProgress * 15}% + ${searchMoveProgress * 12}px)`,
+                width: `calc(100% - ${searchMoveProgress * 30}%)`,
+                maxWidth: `${1640 - searchMoveProgress * 140}px`,
+                opacity: searchRevealProgress,
+                transform: `translateX(-50%) scale(${0.88 + (1 - Math.pow(1 - searchRevealProgress, 3)) * 0.12 - searchMoveProgress * 0.03})`,
+                pointerEvents: searchRevealProgress > 0.1 ? 'auto' : 'none',
+              }}
+            >
+              <div
+                className={styles.searchInner}
+                style={{ height: `${96 - searchMoveProgress * 24}px` }}
+              >
                 <span className={styles.searchIcon} aria-hidden="true">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="11" cy="11" r="8" />
@@ -640,20 +730,24 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Spacer so the search bar moves upward as user scrolls */}
-          <div style={{ height: '50vh' }} />
-
-          {/* Item Cards Grid Grouped */}
+          {/* Item Cards Grid Grouped — directly below search bar */}
           <div 
             className={styles.catalogContent}
             style={{
-              opacity: Math.max(0, (shopTransitionProgress - 0.15) / 0.85),
-              transform: `translateY(${(1 - shopTransitionProgress) * 120}px)`,
-              pointerEvents: shopTransitionProgress > 0.2 ? 'auto' : 'none'
+              opacity: catalogRevealProgress,
+              transform: `translateY(${(1 - catalogRevealProgress) * 52}px)`,
+              pointerEvents: catalogRevealProgress > 0.7 ? 'auto' : 'none'
             }}
           >
             {filteredProducts.length > 0 ? (
-              CATEGORIES.map((categoryObj) => {
+              <>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    height: `calc(50dvh - 82px + ${shopTransitionProgress * 1000}px + ${catalogRevealProgress * 77}px - ${catalogRevealProgress * 50}dvh)`,
+                  }}
+                />
+                {catalogCategories.map((categoryObj) => {
                 const catProducts = filteredProducts.filter(p => p.category === categoryObj.id);
                 if (catProducts.length === 0) return null;
                 const isDropdownOpen = activeDropdownCat === categoryObj.id;
@@ -666,6 +760,10 @@ export default function Home() {
                   >
                     <div 
                       className={styles.stickyCategoryBar}
+                      style={{
+                        top: `calc(${(1 - searchMoveProgress) * 50}dvh + ${66 + searchMoveProgress * 25}px)`,
+                        transform: `scale(${0.82 + searchMoveProgress * 0.18})`,
+                      }}
                       onClick={() => setActiveDropdownCat(isDropdownOpen ? null : categoryObj.id)}
                       role="button"
                       tabIndex={0}
@@ -701,7 +799,7 @@ export default function Home() {
                           <div className={styles.dropdownHeader}>
                             <span>{lang === 'id' ? 'PILIH KATEGORI PRODUK' : 'CHOOSE PRODUCT CATEGORY'}</span>
                           </div>
-                          {CATEGORIES.map((c) => {
+                          {catalogCategories.map((c) => {
                             const count = filteredProducts.filter(p => p.category === c.id).length;
                             const isCurrent = c.id === categoryObj.id;
                             return (
@@ -727,7 +825,7 @@ export default function Home() {
                     </div>
                     <div className={styles.cardsGrid}>
                       {catProducts.map((item) => (
-                        <div key={item.id} className={styles.itemCard}>
+                        <Link key={item.id} href={`/products/${item.id}?name=${encodeURIComponent(item.name[lang])}&image=${encodeURIComponent(item.image)}`} className={styles.itemCard}>
                           <div className={styles.cardFrame}>
                             <div className={styles.cardInner}>
                               <div className={styles.imageContainer}>
@@ -745,12 +843,13 @@ export default function Home() {
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   </div>
                 );
-              })
+                })}
+              </>
             ) : (
               <div className={styles.emptyState}>
                 <p className={styles.emptyTitle}>

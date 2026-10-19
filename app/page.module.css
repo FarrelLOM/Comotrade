@@ -6,7 +6,7 @@
   min-height: 200vh;
   min-height: 200dvh;
   background: #0A0806;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* ─── Top scroll progress bar ─────────────────────────────────────────────── */
@@ -375,10 +375,17 @@
   z-index: 20;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #0A0806;
+  background-color: transparent;
   color: #23170E;
-  box-shadow: 0 -30px 60px rgba(0, 0, 0, 0.7);
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.shopTransitionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #0A0806;
+  pointer-events: none;
 }
 
 .shopPaperBg {
@@ -395,7 +402,7 @@
 .shopSectionInner {
   position: relative;
   z-index: 1;
-  max-width: 1280px;
+  max-width: 1440px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
@@ -407,26 +414,93 @@
   position: sticky;
   top: 0;
   z-index: 600;
-  padding-left: 20px;
-  padding-right: 20px;
-  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+  width: 100vw;
+  height: 96px;
+  margin-left: calc(50% - 50vw);
+  padding: 0 14px;
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: transparent;
+  box-sizing: border-box;
+  pointer-events: none;
 }
 
-.shopStickyHeader.headerDocked {
-  border-bottom: 1px solid rgba(140, 109, 59, 0.35);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+.toolbarFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 88px;
+  border: 1px solid rgba(201, 168, 76, 0.48);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  background: rgba(10, 8, 6, 0.9);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transform-origin: top center;
+  transition: opacity 0.28s ease, transform 0.38s cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.toolbarActions {
+  position: absolute;
+  top: 50%;
+  right: clamp(12px, 2.2vw, 32px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.loginButton,
+.toolbarLangToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid rgba(201, 168, 76, 0.55);
+  border-radius: 999px;
+  padding: 0 18px;
+  background: rgba(26, 22, 18, 0.92);
+  color: #F5E6C8;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.loginButton:hover,
+.toolbarLangToggle:hover {
+  border-color: #C9A84C;
+  background: rgba(201, 168, 76, 0.2);
+  transform: translateY(-1px);
+}
+
+.toolbarLangToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 88px;
+  padding: 0 14px;
 }
 
 /* ─── YouTube-style Compact Search Bar ──────────────────────────────────── */
 .searchBarWrapper {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
   width: 100%;
-  max-width: 640px;
+  max-width: 1520px;
   margin: 0 auto;
+  pointer-events: auto;
   transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -467,6 +541,7 @@
   color: #F5E6C8;
   padding: 0 14px;
   width: 100%;
+  transition: font-size 0.3s ease;
 }
 
 .searchInput::placeholder {
@@ -514,40 +589,40 @@
 
 /* State Hero (Initial Entry - centered and elegant) */
 .searchBarHero .searchInner {
-  height: 58px;
+  height: 96px;
 }
 
 .searchBarHero .searchInput {
-  font-size: clamp(1rem, 1.3vw, 1.2rem);
+  font-size: clamp(1.15rem, 1.6vw, 1.45rem);
   font-weight: 500;
 }
 
 /* State Docked (Sticky Top - compact like YouTube) */
 .searchBarDocked .searchInner {
-  height: 44px;
+  height: 72px;
 }
 
 .searchBarDocked .searchInput {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
 /* ─── Category Grouping & Sticky Bar ─────────────────────────────────── */
 .categoryBlock {
-  margin-bottom: 80px;
+  margin-bottom: 48px;
   position: relative;
 }
 
 .stickyCategoryBar {
   position: sticky;
-  top: 68px;
+  top: 91px;
   z-index: 500;
   background: rgba(18, 14, 11, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  padding: 12px 28px;
+  padding: 10px 24px;
   border-radius: 12px;
-  margin: 0 24px 32px;
+  margin: 0 20px 12px;
   border: 1.5px solid rgba(201, 168, 76, 0.35);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 10px rgba(201, 168, 76, 0.12);
   display: flex;
@@ -693,17 +768,18 @@
 /* ─── Cards Grid & Item Card ─────────────────────────────────────────────── */
 .catalogContent {
   flex: 1;
-  padding-bottom: 100px;
-  transition: opacity 0.5s cubic-bezier(0.2, 1, 0.3, 1), transform 0.5s cubic-bezier(0.2, 1, 0.3, 1);
+  padding-bottom: 48px;
+  transition: opacity 0.35s cubic-bezier(0.2, 1, 0.3, 1), transform 0.35s cubic-bezier(0.2, 1, 0.3, 1);
 }
 
 .cardsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 36px;
-  max-width: 1200px;
-  margin: 32px auto 0;
-  padding: 0 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: none;
+  margin: 8px auto 0;
+  padding: 0 20px;
 }
 
 .itemCard {
@@ -715,6 +791,8 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.2, 1, 0.3, 1), border-color 0.4s ease, background 0.4s ease;
   cursor: pointer;
+  color: inherit;
+  text-decoration: none;
 }
 
 .itemCard:hover {
@@ -768,7 +846,7 @@
 }
 
 .cardBottom {
-  padding: 14px 6px 10px;
+  padding: 10px 6px 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -827,22 +905,36 @@
 @media (max-width: 1100px) {
   .cardsGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    padding: 0 20px;
+    gap: 18px;
+    padding: 0 18px;
   }
 }
 
 @media (max-width: 768px) {
   .shopStickyHeader {
-    padding: 14px 16px;
+    padding: 0 14px;
   }
 
-  .shopStickyHeader.headerDocked {
-    padding: 8px 16px;
+  .toolbarFrame {
+    height: 82px;
+    border-radius: 0 0 12px 12px;
   }
 
-  .searchBarHero .searchInner {
-    height: 50px;
+  .toolbarActions {
+    right: 10px;
+    gap: 6px;
+  }
+
+  .loginButton,
+  .toolbarLangToggle {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 11px;
+  }
+
+  .toolbarLangToggle {
+    min-width: 78px;
+    gap: 5px;
   }
 
   .searchBarHero .searchInput {
@@ -850,9 +942,9 @@
   }
 
   .stickyCategoryBar {
-    top: 60px;
-    padding: 10px 18px;
-    margin: 0 16px 24px;
+    top: 91px;
+    padding: 8px 16px;
+    margin: 0 14px 10px;
   }
 
   .categoryTitle {
@@ -865,22 +957,22 @@
 
   .cardsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 0 16px;
-    margin: 20px auto 0;
+    gap: 14px;
+    padding: 0 14px;
+    margin: 8px auto 0;
   }
 }
 
 @media (max-width: 480px) {
   .cardsGrid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 0 12px;
+    gap: 12px;
+    padding: 0 10px;
   }
 
   .stickyCategoryBar {
-    padding: 8px 14px;
-    margin: 0 12px 18px;
+    padding: 7px 12px;
+    margin: 0 10px 8px;
   }
 
   .categoryTitle {
@@ -896,4 +988,3 @@
     font-size: 0.88rem;
   }
 }
-
