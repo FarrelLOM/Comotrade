@@ -149,6 +149,15 @@
   );
 }
 
+.presentationFade {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  background: #000;
+  pointer-events: none;
+  transition: opacity 0.08s linear;
+}
+
 /* ─── Text Overlay & Items ──────────────────────────────────────────────── */
 .textOverlay {
   position: fixed;
@@ -391,7 +400,7 @@
 .shopPaperBg {
   position: absolute;
   inset: 0;
-  background-image: url('/Pictures/Old%20paper%20background.webp');
+  background-image: url('/Pictures/asset/Old%20paper%20background.webp');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -456,6 +465,59 @@
   pointer-events: auto;
 }
 
+.toolbarIconButton {
+  width: 46px;
+  height: 46px;
+  display: inline-grid;
+  place-items: center;
+  padding: 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .2s ease, filter .2s ease;
+}
+
+.toolbarIconButton:hover,
+.toolbarIconActive {
+  filter: brightness(1.2);
+  transform: scale(1.08);
+}
+
+.toolbarIconButton img {
+  width: 41px;
+  height: 41px;
+  object-fit: contain;
+}
+
+.toolbarFilterMenu {
+  position: absolute;
+  top: 70px;
+  right: clamp(12px, 2.2vw, 32px);
+  z-index: 5;
+  width: min(260px, calc(100vw - 24px));
+  overflow: hidden;
+  border: 1px solid rgba(201, 168, 76, .55);
+  border-radius: 12px;
+  background: rgba(18, 14, 11, .98);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .48);
+}
+
+.toolbarFilterMenu button {
+  width: 100%;
+  padding: 12px 15px;
+  border: 0;
+  border-bottom: 1px solid rgba(201, 168, 76, .18);
+  color: #F5E6C8;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toolbarFilterMenu button:hover {
+  background: rgba(201, 168, 76, .15);
+}
+
 .loginButton,
 .toolbarLangToggle {
   display: inline-flex;
@@ -493,22 +555,17 @@
 }
 
 /* ─── YouTube-style Compact Search Bar ──────────────────────────────────── */
-.searchBarWrapper {
-  position: absolute;
-  left: 50%;
-  z-index: 2;
-  width: 100%;
-  max-width: 1520px;
-  margin: 0 auto;
-  pointer-events: auto;
-  transition: all 0.4s cubic-bezier(0.2, 1, 0.3, 1);
-}
+.searchDockGroup { position:absolute; z-index:2; display:flex; align-items:center; gap:clamp(8px,1.3vw,18px); transition:all .4s cubic-bezier(.2,1,.3,1); }
+.searchBarWrapper { position:relative; flex:1 1 0; min-width:0; width:auto; max-width:none; margin:0; pointer-events:auto; }
+.searchWordmark { flex:0 0 17%; min-width:74px; display:flex; align-items:center; justify-content:center; height:76px; }
+.searchWordmark img { display:block; width:100%; max-height:64px; object-fit:contain; }
 
 .searchInner {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  min-width:0;
   background: rgba(26, 22, 18, 0.88);
   border: 1.5px solid rgba(140, 109, 59, 0.5);
   border-radius: 40px;
@@ -530,6 +587,23 @@
   padding-left: 20px;
   color: #C9A84C;
   transition: color 0.3s;
+}
+
+.searchWordmark {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(82px, 13vw, 150px);
+  height: 100%;
+  padding: 0 8px 0 16px;
+}
+
+.searchWordmark img {
+  display: block;
+  width: 100%;
+  max-height: 55px;
+  object-fit: contain;
 }
 
 .searchInput {
@@ -925,6 +999,27 @@
     gap: 6px;
   }
 
+  .toolbarIconButton {
+    width: 37px;
+    height: 37px;
+    padding: 2px;
+  }
+
+  .toolbarIconButton img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .searchWordmark {
+    flex-basis: 14%;
+    min-width: 56px;
+    height: 52px;
+  }
+
+  .searchWordmark img {
+    max-height: 48px;
+  }
+
   .loginButton,
   .toolbarLangToggle {
     min-height: 38px;
@@ -964,6 +1059,19 @@
 }
 
 @media (max-width: 480px) {
+  .toolbarActions .toolbarIconButton:nth-child(2),
+  .toolbarActions .toolbarIconButton:nth-child(3),
+  .toolbarActions .toolbarIconButton:nth-child(4),
+  .toolbarLangToggle {
+    display: none;
+  }
+
+  .searchWordmark {
+    flex-basis: 13%;
+    min-width: 46px;
+    height: 44px;
+  }
+
   .cardsGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;

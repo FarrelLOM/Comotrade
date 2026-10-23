@@ -2,8 +2,8 @@
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding: 32px 16px;
-  background: radial-gradient(ellipse at top, rgba(201, 168, 76, .12), transparent 55%), #0A0806;
+  padding: 100px 16px 32px;
+  background: linear-gradient(rgba(12, 8, 4, .58), rgba(12, 8, 4, .72)), url('/Pictures/asset/Old%20paper%20background.webp') center / cover fixed;
 }
 .card {
   width: min(100%, 460px);
@@ -21,12 +21,15 @@
 .form label { display: grid; gap: 8px; color: #F5E6C8; font-size: 12px; }
 .form input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid rgba(201,168,76,.32); border-radius: 10px; outline: 0; background: #100d0a; color: #F5E6C8; }
 .form input:focus { border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+.availability,.fieldHint { color:rgba(245,230,200,.58); font-size:11px; line-height:1.45; }
+.available { color:#9fdda8; font-size:11px; line-height:1.45; }
 .submit,.google { width: 100%; min-height: 48px; border-radius: 10px; font-weight: 700; }
 .submit { border: 0; background: #C9A84C; color: #100d0a; cursor: pointer; }
 .submit:disabled { cursor: wait; opacity: .65; }
 .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 16px; color: rgba(245,230,200,.4); font-size: 10px; letter-spacing: .16em; }
 .divider::before,.divider::after { content: ''; height: 1px; flex: 1; background: rgba(201,168,76,.2); }
-.google { border: 1px solid rgba(201,168,76,.28); background: transparent; color: rgba(245,230,200,.55); }
+.google { display: flex; align-items: center; justify-content: center; gap:10px; border: 1px solid rgba(201,168,76,.28); background: transparent; color: rgba(245,230,200,.75); text-decoration: none; }
+.google img { width:20px; height:20px; object-fit:contain; }
 .error { color: #ff9d8f; font-size: 13px; }
 .switch { margin-top: 24px; color: rgba(245,230,200,.7); text-align: center; font-size: 13px; }
 .switch a { color: #D4A017; font-weight: 700; }

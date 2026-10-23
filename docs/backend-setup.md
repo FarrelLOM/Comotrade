@@ -1,34 +1,97 @@
-# Backend MVP setup
+# Setup backend Comotrade
 
-## Security first
+Backend memakai MySQL 8+, Next.js Route Handlers, dan variabel server-side dari `.env`.
+Jangan menambahkan prefix `NEXT_PUBLIC_` pada kredensial database, Tripay, Google OAuth,
+atau `AUTH_SECRET`.
 
-- A database password was exposed in the chat attachment. Rotate it in the database provider and update only the local `.env`; never paste the new value into chat or commit it.
-- `.env` is ignored by Git. Keep database credentials, `AUTH_SECRET`, and future OAuth/payment secrets server-side; never prefix them with `NEXT_PUBLIC_`.
-- Verify the PostgreSQL instance is dedicated to this marketplace before running the migration. Do not apply the schema to another application's database.
+## Database MySQL
 
-## Configure local environment
+1. Pastikan `.env` menunjuk ke host, port, pengguna, dan database MySQL yang memang
+   disediakan untuk Comotrade.
+2. Koneksi TLS aktif secara default (`DB_SSL=true`). Jika penyedia database memberi
+   sertifikat CA khusus—seperti Aiven—unduh CA dari halaman layanan database dan simpan
+   di lokasi lokal yang tidak masuk Git, misalnya `certs/database-ca.pem`. Atur
+   `DB_SSL_CA=./certs/database-ca.pem`. Aplikasi tetap memvalidasi sertifikat server;
+   jangan menonaktifkan validasi TLS untuk mengatasi error sertifikat.
+3. Cadangkan database dan pastikan targetnya benar sebelum menjalankan migrasi:
 
-Copy `.env.example` to `.env` and fill in the rotated database credentials plus a cryptographically random `AUTH_SECRET` of at least 32 characters. `DB_NAME` defaults to `defaultdb` in code but should be set explicitly. The PostgreSQL pool requires TLS by default; set `DB_SSL=false` only for a trusted local database.
+   ```powershell
+   npm run db:migrate
+   ```
 
-## Initialize the schema
+   Schema awal MySQL dibaca dari `my.sql`; enhancement untuk database yang sudah ada
+   dijalankan oleh `scripts/migrate.mjs`. Tabel pelacakan `schema_migrations` mencegah
+   migrasi yang sama dijalankan berulang kali. Schema awal menambahkan contoh Cabai
+   Kering (Rp50.000/kg, stok 1.000 kg) hanya jika produk tersebut belum ada. Migrasi
+   tidak menghapus tabel atau data.
+4. Jika tabel lama sudah ada tetapi strukturnya tidak sesuai, skrip akan berhenti dan
+   menyebut kolom yang hilang. Buat cadangan, tinjau struktur lama, lalu siapkan migrasi
+   kompatibilitas tersendiri; `CREATE TABLE IF NOT EXISTS` tidak mengubah tabel lama.
+5. Setelah membuat akun admin melalui registrasi, ubah role akun itu menjadi `admin`
+   secara manual pada database. Registrasi publik dan Google OAuth selalu membuat role
+   `user`.
 
-Review `db/migrations/001_marketplace.sql`, take a provider-side backup, then apply that SQL to the confirmed marketplace database using the provider console or your approved migration runner. This project does not automatically execute migrations at startup. Do not run it against production or an unrelated database.
+Variabel database yang diperlukan: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`,
+`DB_NAME`, `DB_SSL`, dan—bila CA khusus diperlukan—`DB_SSL_CA`.
 
-The migration creates users, products, orders, order items, payments, shipments, reviews, conversations, and messages. New registrations are assigned `users.role = 'user'`; admin access is checked server-side against this column. Promote the administrator manually in the database only after creating that account.
+## Google OAuth
 
-## Implemented in this first pass
+Alur server-side sudah menggunakan authorization code, cookie `state` HTTP-only,
+pertukaran kode di server, dan Google OpenID Connect UserInfo. Email Google harus
+terverifikasi. Akun yang sudah ada dengan email sama hanya ditautkan jika email tersebut
+terverifikasi Google; role yang sudah ada tidak dinaikkan.
 
-- Email/password registration and login use bcrypt password hashes and a signed, HTTP-only session cookie.
-- Product catalog and detail endpoints read from PostgreSQL; the landing page retains its original static catalog as a fallback and overlays database-managed products.
-- Admin-only product creation; authenticated order creation, order history, status/tracking administration, payment-reference submission, reviews after delivery, and customer/admin messaging endpoints.
-- Order creation validates stock and reserves it within a database transaction. Cancelling eligible unshipped orders restores reserved stock.
+Isi konfigurasi berikut setelah membuat OAuth Client ID bertipe Web:
 
-## Not yet connected
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REDIRECT_URI` — harus persis sama dengan Authorized redirect URI di Google
+  Cloud Console, yaitu `https://domain-anda/api/auth/google/callback` setelah deploy.
+- `APP_URL` — origin situs, misalnya `https://domain-anda`.
 
-- Google OAuth: no OAuth client credentials/callback configuration have been supplied; the UI marks this option as unavailable.
-- Payment gateway: provider is undecided. Payment submission currently records a reference for admin review; it does not collect money, verify webhooks, or process refunds through a gateway.
-- Payment proof uploads and product image uploads: the schema has fields for references/URLs, but a trusted object-storage provider and upload validation are still needed.
-- Courier API and real-time chat: shipment tracking is an admin-entered carrier/tracking URL and messaging is database-backed polling-on-refresh, not WebSocket/live notifications.
-- Cart is currently browser-local; the final checkout is validated and persisted server-side.
+Untuk pengembangan lokal, tambahkan URL callback localhost ke daftar Authorized redirect
+URIs. Jangan mengirim secret OAuth ke browser.
 
-Before production, add CSRF/origin protections, rate limiting and login throttling, email verification/password reset, audit logging, automated migrations, provider webhooks with signature verification and idempotency, secure object storage, and integration tests.
+## Tripay
+
+Integrasi memakai endpoint transaksi Tripay, HMAC-SHA256 untuk pembuatan transaksi,
+dan HMAC-SHA256 atas raw body untuk memverifikasi callback pembayaran. Callback hanya
+mengubah pesanan menjadi `paid` setelah signature, merchant reference, reference
+transaksi, dan jumlah pembayaran cocok. Pemrosesan callback idempoten.
+
+Atur nilai server-side berikut dari dashboard merchant Tripay:
+
+- `TRIPAY_MODE=sandbox` selama uji coba, lalu `production` ketika siap live.
+- `TRIPAY_API_KEY`, `TRIPAY_PRIVATE_KEY`, dan `TRIPAY_MERCHANT_CODE`.
+- `TRIPAY_PAYMENT_METHOD` dengan kode channel yang aktif pada merchant, misalnya kode
+  channel yang disediakan Tripay untuk akun tersebut.
+- `TRIPAY_CALLBACK_URL=https://domain-anda/api/payments/tripay/callback` setelah domain
+  HTTPS tersedia.
+- `APP_URL=https://domain-anda` untuk URL kembali setelah pembayaran.
+
+Pembayaran baru dimulai dari akun setelah checkout. Pesanan dan stok disimpan sebelum
+pengguna diarahkan ke halaman pembayaran Tripay. Status berubah menjadi lunas melalui
+callback terverifikasi, bukan dari parameter URL browser. Refund belum memanggil API
+refund Tripay; status refund harus ditangani sesuai prosedur merchant.
+
+## Alur data utama
+
+- Login email/password: bcrypt dan cookie sesi HTTP-only bertanda tangan.
+- Login Google: Google OAuth, lalu sesi aplikasi yang sama.
+- Produk: CRUD admin melalui API; penghapusan produk dilakukan dengan menonaktifkan
+  produk, bukan menghapus riwayat transaksi.
+- Checkout: harga dibaca ulang dari database, stok dikunci dan dikurangi dalam transaksi
+  MySQL, lalu pesanan dan catatan pembayaran dibuat.
+- Pesanan: akses dibatasi untuk pemilik atau admin. Pembatalan hanya diizinkan sebelum
+  proses pengiriman dan mengembalikan stok dalam transaksi.
+- Ulasan hanya bisa dibuat pemilik pesanan yang berstatus delivered.
+- Pesan dukungan tersimpan di database dan dimuat ulang saat dashboard dimuat; belum
+  menggunakan koneksi real-time.
+- Keranjang masih disimpan di browser sampai checkout.
+
+## Catatan operasional
+
+Sebelum produksi, siapkan domain HTTPS dan allowlist callback di Google/Tripay; gunakan
+credential produksi Tripay hanya setelah pengujian sandbox; rotasi password database
+atau secret yang pernah terekspos; dan rencanakan rate limiting, audit log, notifikasi,
+backup rutin, serta pengujian integrasi terhadap database staging.

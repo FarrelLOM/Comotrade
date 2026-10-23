@@ -1,4 +1,4 @@
-.page { min-height:100dvh; padding:110px clamp(16px,4vw,56px) 60px; background:#0A0806; color:#F5E6C8; }
+.page { min-height:100dvh; padding:110px clamp(16px,4vw,56px) 60px; background:rgba(20,14,9,.28); color:#F5E6C8; }
 .header { max-width:1200px; margin:0 auto 28px; display:flex; justify-content:space-between; align-items:center; gap:20px; }
 .brand { color:#C9A84C; text-decoration:none; font-size:11px; letter-spacing:.18em; font-weight:700; }
 .header h1 { margin:12px 0 4px; font:700 clamp(30px,5vw,44px)/1.1 'Playfair Display',Georgia,serif; }
@@ -8,6 +8,7 @@
 .panel h2 { margin:0 0 18px; color:#F5E6C8; font:600 24px 'Playfair Display',Georgia,serif; }
 .button,.secondary { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 15px; border-radius:9px; font-weight:700; cursor:pointer; text-decoration:none; }
 .button { border:1px solid #C9A84C; background:#C9A84C; color:#140f08; }.secondary { border:1px solid rgba(201,168,76,.45); background:transparent; color:#F5E6C8; }
+.actionIcon { width:22px; height:22px; margin-right:8px; object-fit:contain; }.shipment { display:flex; align-items:center; gap:8px; }.shipment img { width:28px; height:28px; object-fit:contain; }
 .button:disabled { opacity:.5; cursor:wait; }
 .productForm { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
 .productForm label,.reviewForm { display:grid; gap:7px; color:rgba(245,230,200,.8); font-size:12px; }

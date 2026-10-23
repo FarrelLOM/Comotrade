@@ -7,19 +7,19 @@ export const runtime = 'nodejs';
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
-    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { username, password } = await request.json();
+    const normalizedUsername = String(username || '').trim().toLowerCase();
     const { rows } = await query(
-      'SELECT id, full_name, email, password_hash, role FROM users WHERE email = $1',
-      [normalizedEmail],
+      'SELECT id, full_name, username, email, password_hash, role FROM users WHERE username = ?',
+      [normalizedUsername],
     );
     const account = rows[0];
     if (!account?.password_hash || !(await compare(String(password || ''), account.password_hash))) {
-      return NextResponse.json({ error: 'Email atau password salah.' }, { status: 401 });
+      return NextResponse.json({ error: 'Username atau password salah.' }, { status: 401 });
     }
     await createSession(account.id);
     return NextResponse.json({
-      user: { id: account.id, full_name: account.full_name, email: account.email, role: account.role },
+      user: { id: account.id, full_name: account.full_name, username: account.username, email: account.email, role: account.role },
     });
   } catch (error) {
     console.error('Login failed:', error?.message);

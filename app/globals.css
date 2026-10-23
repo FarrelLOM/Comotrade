@@ -24,6 +24,20 @@ html {
 nextjs-portal {
   display: none !important;
 }
+
+.currency-warning {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1300;
+  max-width: min(420px, calc(100vw - 32px));
+  padding: 10px 14px;
+  border: 1px solid rgba(201, 168, 76, .4);
+  border-radius: 8px;
+  color: #F5E6C8;
+  background: rgba(20, 14, 9, .94);
+  font-size: 12px;
+}
 #__next-build-watcher,
 [data-nextjs-dialog-overlay],
 [data-nextjs-toast],
@@ -32,7 +46,7 @@ nextjs-portal {
 }
 
 body {
-  background: var(--color-dark);
+  background: #21170e url('/Pictures/asset/Old%20paper%20background.webp') center / cover fixed;
   color: var(--color-cream);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;

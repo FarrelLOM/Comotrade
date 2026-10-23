@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 
@@ -269,9 +269,43 @@ const PRODUCTS = [
   },
 ];
 
+const PRESENTATION_SEEN_KEY = 'comotrade_presentation_seen';
+
+function localDateKey() {
+  const date = new Date();
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function hasSeenPresentationToday() {
+  try {
+    if (localStorage.getItem(PRESENTATION_SEEN_KEY) === localDateKey()) return true;
+  } catch (error) {
+    console.warn('Persistent presentation preference is unavailable:', error);
+  }
+  try {
+    return sessionStorage.getItem(PRESENTATION_SEEN_KEY) === localDateKey();
+  } catch (error) {
+    console.error('Unable to read the presentation preference:', error);
+    return false;
+  }
+}
+
+function markPresentationSeen() {
+  try {
+    localStorage.setItem(PRESENTATION_SEEN_KEY, localDateKey());
+    return;
+  } catch (error) {
+    console.warn('Persistent presentation preference is unavailable:', error);
+  }
+  try {
+    sessionStorage.setItem(PRESENTATION_SEEN_KEY, localDateKey());
+  } catch (error) {
+    console.error('Unable to save the presentation preference:', error);
+  }
+}
+
 /* ─── Main Page ─────────────────────────────────────────────────────────────── */
 export default function Home() {
-  console.log('Home component rendered - checking for updates');
   const [lang,             setLang]             = useState('en');
   const [activeIndex,      setActiveIndex]      = useState(0);
   const [scrollProgress,   setScrollProgress]   = useState(0);
@@ -283,6 +317,9 @@ export default function Home() {
   const [isInShop,               setIsInShop]               = useState(false);
   const [shopTransitionProgress, setShopTransitionProgress] = useState(0);
   const [activeDropdownCat,      setActiveDropdownCat]      = useState(null);
+  const [filterMenuOpen,         setFilterMenuOpen]         = useState(false);
+  const [activeCategoryFilter,   setActiveCategoryFilter]   = useState('');
+  const [sortOrder,              setSortOrder]              = useState('');
 
   const videoRef        = useRef(null);
   const checkpointRefs  = useRef([]);   // invisible block divs – provide scroll height
@@ -320,11 +357,10 @@ export default function Home() {
   const marketplaceLockProgress = 0.55;
   const marketplaceLockOffset = shopTransitionDistance * marketplaceLockProgress;
   const marketplaceLockTolerance = 1;
-  const blackFadeInProgress = Math.min(shopTransitionProgress / 0.1, 1);
-  const backgroundProgress = Math.min(Math.max((shopTransitionProgress - 0.1) / 0.5, 0), 1);
-  const transitionOverlayOpacity = blackFadeInProgress * (1 - backgroundProgress);
-  const searchRevealProgress = backgroundProgress;
-  const searchMoveProgress = Math.min(Math.max((shopTransitionProgress - 0.55) / 0.4, 0), 1);
+  const backgroundProgress = Math.min(Math.max((shopTransitionProgress - 0.18) / 0.42, 0), 1);
+  const transitionOverlayOpacity = 1 - backgroundProgress;
+  const searchRevealProgress = Math.min(Math.max((shopTransitionProgress - 0.08) / 0.48, 0), 1);
+  const searchMoveProgress = Math.min(Math.max((shopTransitionProgress - 0.62) / 0.38, 0), 1);
   const catalogRevealProgress = searchMoveProgress;
   
   let videoSrc = "/videos/scene-01.mp4";
@@ -345,6 +381,29 @@ export default function Home() {
     video.playbackRate = 1.0;
   }, []);
 
+  useLayoutEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q');
+    if (query) setSearchQuery(query);
+    if (params.get('sort') === 'ascending' || params.get('sort') === 'descending') {
+      setSortOrder(params.get('sort'));
+    }
+    if (params.get('filters') === 'open') setFilterMenuOpen(true);
+    const seenToday = hasSeenPresentationToday();
+    const directMarketplaceEntry = params.has('q') || params.has('sort') || params.has('filters');
+    if (!seenToday && !directMarketplaceEntry) return;
+    if (directMarketplaceEntry) markPresentationSeen();
+
+    const shopTop = shopSectionRef.current?.offsetTop;
+    if (typeof shopTop !== 'number') return;
+    hasEnteredMarketplaceRef.current = true;
+    setIsInShop(true);
+    setShopTransitionProgress(1);
+    setScrollProgress(1);
+    activeIndexRef.current = sections - 1;
+    window.scrollTo({ top: shopTop + shopTransitionDistance, behavior: 'instant' });
+  }, [sections]);
+
   useEffect(() => {
     let cancelled = false;
     fetch('/api/products')
@@ -361,13 +420,22 @@ export default function Home() {
     return allProducts.filter((item) => {
       const q = searchQuery.trim().toLowerCase();
       return (
-        q === '' ||
-        item.name.id.toLowerCase().includes(q) ||
-        item.name.en.toLowerCase().includes(q) ||
-        item.category.toLowerCase().includes(q)
+        (!activeCategoryFilter || item.category === activeCategoryFilter) &&
+        (q === '' ||
+          item.name.id.toLowerCase().includes(q) ||
+          item.name.en.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q))
       );
     });
-  }, [allProducts, searchQuery]);
+  }, [allProducts, searchQuery, activeCategoryFilter]);
+
+  const sortedProducts = useMemo(() => {
+    if (!sortOrder) return filteredProducts;
+    return [...filteredProducts].sort((a, b) => {
+      const comparison = a.name.id.localeCompare(b.name.id, 'id');
+      return sortOrder === 'ascending' ? comparison : -comparison;
+    });
+  }, [filteredProducts, sortOrder]);
 
   /* ── Close dropdown when clicking outside ── */
   useEffect(() => {
@@ -393,8 +461,9 @@ export default function Home() {
         scrollY = marketplaceLockTop;
       }
 
-      if (scrollY >= shopTop) {
+      if (scrollY >= shopTop && !hasEnteredMarketplaceRef.current) {
         hasEnteredMarketplaceRef.current = true;
+        markPresentationSeen();
       }
 
       const inShop = scrollY >= shopTop;
@@ -529,7 +598,7 @@ export default function Home() {
       {/* ── Fullscreen video background ── */}
       <div
         className={styles.videoWrapper}
-        style={{ opacity: isInShop ? 0 : 1 }}
+        style={{ opacity: isInShop ? 0 : Math.max(0, 1 - Math.max(0, scrollProgress - 0.86) / 0.14) }}
       >
         <video
           ref={videoRef}
@@ -550,6 +619,13 @@ export default function Home() {
         />
         <div className={styles.videoOverlay} />
       </div>
+      <div
+        className={styles.presentationFade}
+        style={{
+          opacity: isInShop ? 0 : Math.min(Math.max((scrollProgress - 0.82) / 0.18, 0), 1),
+        }}
+        aria-hidden="true"
+      />
 
       {/*
         ── Fixed centered text overlay ──
@@ -559,7 +635,7 @@ export default function Home() {
       <div
         className={styles.textOverlay}
         style={{
-          opacity: isInShop ? 0 : 1,
+          opacity: isInShop ? 0 : Math.max(0, 1 - Math.max(0, scrollProgress - 0.86) / 0.14),
           pointerEvents: 'none',
           transition: 'opacity 0.4s ease',
         }}
@@ -581,7 +657,7 @@ export default function Home() {
       <nav
         className={styles.scrollRail}
         style={{
-          opacity: isInShop ? 0 : 1,
+          opacity: isInShop ? 0 : Math.max(0, 1 - Math.max(0, scrollProgress - 0.86) / 0.14),
           pointerEvents: isInShop ? 'none' : 'auto',
           transition: 'opacity 0.4s ease',
         }}
@@ -635,7 +711,7 @@ export default function Home() {
         {isInShop && (
           <div
             className={styles.shopTransitionOverlay}
-            style={{ opacity: transitionOverlayOpacity }}
+            style={{ opacity: transitionOverlayOpacity, transition: 'opacity 0.12s linear' }}
             aria-hidden="true"
           />
         )}
@@ -660,7 +736,30 @@ export default function Home() {
               inert={searchMoveProgress <= 0.1}
             >
               <div className={styles.toolbarActions}>
-                <Link className={styles.loginButton} href="/login">
+                <Link className={styles.toolbarIconButton} href="/cart" aria-label="Keranjang">
+                  <img src="/Pictures/asset/cart%20icon.png" alt="" />
+                </Link>
+                <button
+                  type="button"
+                  className={styles.toolbarIconButton}
+                  aria-label="Filter kategori produk"
+                  aria-expanded={filterMenuOpen}
+                  onClick={() => setFilterMenuOpen((open) => !open)}
+                >
+                  <img src="/Pictures/asset/filter%20icon.png" alt="" />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.toolbarIconButton} ${sortOrder ? styles.toolbarIconActive : ''}`}
+                  aria-label={`Urutkan nama produk${sortOrder ? `: ${sortOrder === 'ascending' ? 'A ke Z' : 'Z ke A'}` : ''}`}
+                  onClick={() => setSortOrder((order) => order === '' ? 'ascending' : order === 'ascending' ? 'descending' : '')}
+                >
+                  <img src="/Pictures/asset/sort%20icon.png" alt="" />
+                </button>
+                <Link className={styles.toolbarIconButton} href="/account" aria-label="Akun dan pembayaran">
+                  <img src="/Pictures/asset/cash%20or%20payment%20icon.png" alt="" />
+                </Link>
+                <Link className={styles.loginButton} href={`/login?returnTo=${encodeURIComponent('/')}`}>
                   {lang === 'id' ? 'Masuk' : 'Login'}
                 </Link>
                 <button
@@ -674,20 +773,33 @@ export default function Home() {
                   <span className={styles.langInactive}>{t.toggleLabel}</span>
                 </button>
               </div>
+              {filterMenuOpen && (
+                <div className={styles.toolbarFilterMenu} role="group" aria-label="Filter kategori produk">
+                  <button type="button" onClick={() => { setActiveCategoryFilter(''); setFilterMenuOpen(false); }}>
+                    Semua kategori {activeCategoryFilter === '' ? '✓' : ''}
+                  </button>
+                  {catalogCategories.map((category) => (
+                    <button key={category.id} type="button" onClick={() => { setActiveCategoryFilter(category.id); setFilterMenuOpen(false); }}>
+                      {category.label[lang]} {activeCategoryFilter === category.id ? '✓' : ''}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div
-              className={`${styles.searchBarWrapper} ${searchMoveProgress > 0.98 ? styles.searchBarDocked : styles.searchBarHero}`}
+              className={styles.searchDockGroup}
               style={{
                 top: `calc(${(1 - searchMoveProgress) * 50}dvh + ${searchMoveProgress * 49 - 42}px)`,
                 left: `calc(50% - ${searchMoveProgress * 15}% + ${searchMoveProgress * 12}px)`,
-                width: `calc(100% - ${searchMoveProgress * 30}%)`,
+                width: searchMoveProgress > 0.98 ? '65%' : `calc(100% - ${searchMoveProgress * 30}%)`,
                 maxWidth: `${1640 - searchMoveProgress * 140}px`,
                 opacity: searchRevealProgress,
                 transform: `translateX(-50%) scale(${0.88 + (1 - Math.pow(1 - searchRevealProgress, 3)) * 0.12 - searchMoveProgress * 0.03})`,
                 pointerEvents: searchRevealProgress > 0.1 ? 'auto' : 'none',
               }}
             >
+              <div className={`${styles.searchBarWrapper} ${searchMoveProgress > 0.98 ? styles.searchBarDocked : styles.searchBarHero}`}>
               <div
                 className={styles.searchInner}
                 style={{ height: `${96 - searchMoveProgress * 24}px` }}
@@ -727,6 +839,19 @@ export default function Home() {
                   </svg>
                 </button>
               </div>
+              </div>
+              <Link
+                className={styles.searchWordmark}
+                href="/#katalog-toko"
+                aria-label="Ke beranda produk"
+                onClick={(event) => {
+                  event.preventDefault();
+                  const shopTop = shopSectionRef.current?.offsetTop || 0;
+                  window.scrollTo({ top: shopTop + shopTransitionDistance, behavior: 'smooth' });
+                }}
+              >
+                <img src="/Pictures/asset/tulisan.png" alt="" />
+              </Link>
             </div>
           </div>
 
@@ -739,7 +864,7 @@ export default function Home() {
               pointerEvents: catalogRevealProgress > 0.7 ? 'auto' : 'none'
             }}
           >
-            {filteredProducts.length > 0 ? (
+            {sortedProducts.length > 0 ? (
               <>
                 <div
                   aria-hidden="true"
@@ -748,7 +873,7 @@ export default function Home() {
                   }}
                 />
                 {catalogCategories.map((categoryObj) => {
-                const catProducts = filteredProducts.filter(p => p.category === categoryObj.id);
+                const catProducts = sortedProducts.filter(p => p.category === categoryObj.id);
                 if (catProducts.length === 0) return null;
                 const isDropdownOpen = activeDropdownCat === categoryObj.id;
 
@@ -800,7 +925,7 @@ export default function Home() {
                             <span>{lang === 'id' ? 'PILIH KATEGORI PRODUK' : 'CHOOSE PRODUCT CATEGORY'}</span>
                           </div>
                           {catalogCategories.map((c) => {
-                            const count = filteredProducts.filter(p => p.category === c.id).length;
+                            const count = sortedProducts.filter(p => p.category === c.id).length;
                             const isCurrent = c.id === categoryObj.id;
                             return (
                               <button

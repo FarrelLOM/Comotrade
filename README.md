@@ -1,37 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Comotrade — Rempah Nusantara
 
-## Getting Started
+Marketplace Next.js untuk katalog produk, akun pelanggan/admin, checkout, pembayaran
+Tripay, dan autentikasi Google OAuth. Backend menggunakan MySQL 8+.
 
-First, run the development server:
+## Mulai development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Salin `.env.example` menjadi `.env`, lalu isi kredensial MySQL dan `AUTH_SECRET`.
+2. Jika penyedia database memerlukan CA khusus, simpan sertifikat secara lokal dan atur
+   `DB_SSL_CA` ke path sertifikat tersebut.
+3. Setelah memastikan database target dan membuat cadangan, siapkan skema:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```powershell
+   npm run db:migrate
+   ```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+4. Jalankan aplikasi:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```powershell
+   npm run dev
+   ```
 
-## Learn More
+Buka `http://localhost:3000`. Petunjuk konfigurasi Google OAuth, Tripay, TLS, dan database
+ada di [docs/backend-setup.md](./docs/backend-setup.md).
 
-To learn more about Next.js, take a look at the following resources:
+## Teknologi
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# Comotrade
+- Next.js App Router dan React
+- MySQL dengan transaksi untuk checkout dan pengelolaan stok
+- bcrypt untuk password dan sesi bertanda tangan dalam cookie HTTP-only
+- Google OAuth 2.0 / OpenID Connect
+- Tripay dengan validasi signature callback

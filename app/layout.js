@@ -1,15 +1,28 @@
 import './globals.css';
+import MarketplaceChrome from './components/MarketplaceChrome';
+import FloatingMessages from './components/FloatingMessages';
+import { CurrencyProvider } from './components/CurrencyProvider';
 
 export const metadata = {
-  title: 'Rempah Nusantara — Sejarah & Perjalanan',
+  title: 'Rempah Nusantara — Marketplace',
   description:
-    'Menelusuri sejarah dan perjalanan rempah-rempah Nusantara yang telah mengubah dunia.',
+    'Marketplace rempah dan produk unggulan Nusantara.',
+  icons: {
+    icon: '/Pictures/asset/logo.png',
+    apple: '/Pictures/asset/logo.png',
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="id">
-      <body>{children}</body>
+      <body>
+        <MarketplaceChrome />
+        <CurrencyProvider>
+          {children}
+          <FloatingMessages />
+        </CurrencyProvider>
+      </body>
     </html>
   );
 }
