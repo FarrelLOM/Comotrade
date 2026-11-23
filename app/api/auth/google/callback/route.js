@@ -3,31 +3,24 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { createSession } from '@/lib/auth';
 import { query, withTransaction } from '@/lib/db';
+import { getPublicCallbackUrl, getPublicOrigin } from '@/lib/public-origin.mjs';
+import { safeReturnTo } from '@/lib/safe-return-to.mjs';
 
 export const runtime = 'nodejs';
 
 const STATE_COOKIE = 'comotrade_google_state';
 const RETURN_TO_COOKIE = 'comotrade_google_return_to';
 
-function safeReturnTo(value) {
-  return typeof value === 'string' &&
-    value.startsWith('/') &&
-    !value.startsWith('//') &&
-    !value.startsWith('/\\') &&
-    !value.includes('\\')
-    ? value
-    : '/#katalog-toko';
-}
-
-function getRedirectUri() {
-  if (process.env.GOOGLE_REDIRECT_URI) return process.env.GOOGLE_REDIRECT_URI;
-  const appUrl = process.env.APP_URL;
-  if (!appUrl) throw new Error('APP_URL or GOOGLE_REDIRECT_URI must be configured.');
-  return new URL('/api/auth/google/callback', appUrl).toString();
+function getRedirectUri(request) {
+  return getPublicCallbackUrl({
+    configuredUrl: process.env.GOOGLE_REDIRECT_URI,
+    pathname: '/api/auth/google/callback',
+    request,
+  });
 }
 
 function loginRedirect(request, reason, returnTo) {
-  const url = new URL('/login', request.url);
+  const url = new URL('/login', getPublicOrigin(request));
   url.searchParams.set('error', reason);
   url.searchParams.set('returnTo', safeReturnTo(returnTo));
   return NextResponse.redirect(url);
@@ -49,7 +42,7 @@ export async function GET(request) {
   if (!code || url.searchParams.has('error')) return loginRedirect(request, 'google_denied', returnTo);
 
   try {
-    const redirectUri = getRedirectUri();
+    const redirectUri = getRedirectUri(request);
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -111,7 +104,7 @@ export async function GET(request) {
       return newUserId;
     });
     await createSession(id);
-    return NextResponse.redirect(new URL(returnTo, request.url));
+    return NextResponse.redirect(new URL(returnTo, getPublicOrigin(request)));
   } catch (error) {
     console.error('Google OAuth callback failed:', error?.message);
     return loginRedirect(request, 'google_failed', returnTo);

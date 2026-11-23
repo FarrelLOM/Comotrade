@@ -1,7 +1,7 @@
-import Dashboard from '@/app/dashboard/Dashboard';
+import AccountGate from './AccountGate';
 
 export const metadata = { title: 'Akun Saya — Rempah Nusantara' };
 
 export default function AccountPage() {
-  return <Dashboard />;
+  return <AccountGate view="home" />;
 }

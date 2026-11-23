@@ -1,36 +1,121 @@
 .page {
   min-height: 100dvh;
+  padding: 108px clamp(18px, 6vw, 84px) 48px;
   display: grid;
-  place-items: center;
-  padding: 100px 16px 32px;
-  background: linear-gradient(rgba(12, 8, 4, .58), rgba(12, 8, 4, .72)), url('/Pictures/asset/Old%20paper%20background.webp') center / cover fixed;
+  align-items: center;
+  background:
+    radial-gradient(ellipse at 18% 25%, rgba(196, 163, 99, .2), transparent 35%),
+    linear-gradient(135deg, rgba(247, 241, 229, .97), rgba(235, 225, 203, .96));
+  color: #1f2c25;
 }
+
+.layout {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(400px, .75fr);
+  gap: clamp(42px, 8vw, 112px);
+  align-items: center;
+}
+
+.story { padding: 30px 0; }
+.brand {
+  display: inline-block;
+  color: #244a38;
+  text-decoration: none;
+  font: 700 13px/1 Arial, sans-serif;
+  letter-spacing: .2em;
+}
+.storyKicker {
+  display: block;
+  margin-top: clamp(70px, 14vh, 150px);
+  color: #98743a;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .22em;
+}
+.story h2 {
+  margin-top: 20px;
+  color: #1d392c;
+  font: 500 clamp(42px, 6vw, 72px)/.98 'Cormorant Local', Georgia, serif;
+  letter-spacing: -.025em;
+}
+.story > p {
+  max-width: 430px;
+  margin-top: 22px;
+  color: #657168;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.storyRule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 56px;
+  color: #7d7868;
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+.storyRule span { width: 42px; height: 1px; background: #b88b42; }
+
 .card {
-  width: min(100%, 460px);
-  padding: clamp(28px, 6vw, 48px);
-  border: 1px solid rgba(201, 168, 76, .3);
-  border-radius: 24px;
-  background: rgba(24, 19, 14, .92);
-  box-shadow: 0 24px 80px rgba(0,0,0,.45);
+  width: 100%;
+  padding: clamp(26px, 4vw, 48px);
+  border: 1px solid rgba(58, 76, 62, .15);
+  border-radius: 22px;
+  background: rgba(255, 253, 248, .9);
+  box-shadow: 0 28px 80px rgba(49, 53, 38, .14);
+  backdrop-filter: blur(14px);
 }
-.brand { display: block; color: #C9A84C; font-size: 12px; letter-spacing: .18em; text-decoration: none; font-weight: 700; }
-.eyebrow { display: block; margin-top: 38px; color: #C9A84C; font-size: 10px; letter-spacing: .2em; }
-.card h1 { margin-top: 10px; color: #F5E6C8; font: 600 clamp(28px, 5vw, 38px)/1.15 'Playfair Display', Georgia, serif; }
-.lead { margin-top: 10px; color: rgba(245,230,200,.68); font-size: 14px; line-height: 1.6; }
-.form { display: grid; gap: 18px; margin-top: 28px; }
-.form label { display: grid; gap: 8px; color: #F5E6C8; font-size: 12px; }
-.form input { width: 100%; height: 48px; padding: 0 14px; border: 1px solid rgba(201,168,76,.32); border-radius: 10px; outline: 0; background: #100d0a; color: #F5E6C8; }
-.form input:focus { border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
-.availability,.fieldHint { color:rgba(245,230,200,.58); font-size:11px; line-height:1.45; }
-.available { color:#9fdda8; font-size:11px; line-height:1.45; }
+.eyebrow {
+  display: block;
+  color: #8d6a32;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+.card h1 {
+  margin-top: 12px;
+  color: #1d392c;
+  font: 600 clamp(30px, 4vw, 42px)/1.05 'Cormorant Local', Georgia, serif;
+}
+.lead { margin-top: 10px; color: #6a756d; font-size: 13px; line-height: 1.65; }
+.form { display: grid; gap: 16px; margin-top: 26px; }
+.form label { display: grid; gap: 8px; color: #36453b; font-size: 12px; font-weight: 600; }
+.form input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid #d8ded5;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: #1f2c25;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.form input:focus { border-color: #54745f; box-shadow: 0 0 0 3px rgba(84, 116, 95, .12); }
+.availability,.fieldHint { color: #7b857d; font-size: 11px; line-height: 1.45; }
+.available { color: #2f7047; font-size: 11px; line-height: 1.45; }
 .submit,.google { width: 100%; min-height: 48px; border-radius: 10px; font-weight: 700; }
-.submit { border: 0; background: #C9A84C; color: #100d0a; cursor: pointer; }
-.submit:disabled { cursor: wait; opacity: .65; }
-.divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 16px; color: rgba(245,230,200,.4); font-size: 10px; letter-spacing: .16em; }
-.divider::before,.divider::after { content: ''; height: 1px; flex: 1; background: rgba(201,168,76,.2); }
-.google { display: flex; align-items: center; justify-content: center; gap:10px; border: 1px solid rgba(201,168,76,.28); background: transparent; color: rgba(245,230,200,.75); text-decoration: none; }
-.google img { width:20px; height:20px; object-fit:contain; }
-.error { color: #ff9d8f; font-size: 13px; }
-.switch { margin-top: 24px; color: rgba(245,230,200,.7); text-align: center; font-size: 13px; }
-.switch a { color: #D4A017; font-weight: 700; }
-.note { margin-top: 22px; color: rgba(245,230,200,.42); text-align: center; font-size: 11px; line-height: 1.5; }
+.submit { margin-top: 2px; border: 0; background: #244a38; color: #fff; cursor: pointer; transition: background .2s, transform .2s; }
+.submit:hover:not(:disabled) { background: #18392d; transform: translateY(-1px); }
+.submit:disabled { cursor: wait; opacity: .62; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 14px; color: #8a928b; font-size: 9px; letter-spacing: .16em; }
+.divider::before,.divider::after { content: ''; height: 1px; flex: 1; background: #e2e5df; }
+.google { display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid #d6ddd5; background: #fff; color: #35433a; text-decoration: none; transition: border-color .2s, background .2s; }
+.google:hover { border-color: #8ea092; background: #f7faf6; }
+.google img { width: 20px; height: 20px; object-fit: contain; }
+.error { padding: 11px 12px; border: 1px solid #e8c5bb; border-radius: 9px; background: #fff4f0; color: #843f30; font-size: 12px; line-height: 1.5; }
+.switch { margin-top: 20px; color: #69756c; text-align: center; font-size: 12px; }
+.switch a { color: #244a38; font-weight: 700; }
+.note { margin-top: 18px; color: #929991; text-align: center; font-size: 10px; line-height: 1.5; }
+
+@media (max-width: 780px) {
+  .page { padding: 92px 16px 30px; }
+  .layout { grid-template-columns: 1fr; gap: 16px; max-width: 510px; }
+  .story { padding: 16px 8px 8px; }
+  .storyKicker { margin-top: 30px; }
+  .story h2 { font-size: 42px; }
+  .story > p,.storyRule { display: none; }
+  .card { padding: 26px 22px; }
+}

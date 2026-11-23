@@ -1,27 +1,20 @@
 import { randomBytes } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { getPublicCallbackUrl, getPublicOrigin } from '@/lib/public-origin.mjs';
+import { safeReturnTo } from '@/lib/safe-return-to.mjs';
 
 export const runtime = 'nodejs';
 
 const STATE_COOKIE = 'comotrade_google_state';
 const RETURN_TO_COOKIE = 'comotrade_google_return_to';
 
-function safeReturnTo(value) {
-  return typeof value === 'string' &&
-    value.startsWith('/') &&
-    !value.startsWith('//') &&
-    !value.startsWith('/\\') &&
-    !value.includes('\\')
-    ? value
-    : '/#katalog-toko';
-}
-
-function getRedirectUri() {
-  if (process.env.GOOGLE_REDIRECT_URI) return process.env.GOOGLE_REDIRECT_URI;
-  const appUrl = process.env.APP_URL;
-  if (!appUrl) throw new Error('APP_URL or GOOGLE_REDIRECT_URI must be configured.');
-  return new URL('/api/auth/google/callback', appUrl).toString();
+function getRedirectUri(request) {
+  return getPublicCallbackUrl({
+    configuredUrl: process.env.GOOGLE_REDIRECT_URI,
+    pathname: '/api/auth/google/callback',
+    request,
+  });
 }
 
 export async function GET(request) {
@@ -29,7 +22,7 @@ export async function GET(request) {
   const returnTo = safeReturnTo(requestUrl.searchParams.get('returnTo'));
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId || !process.env.GOOGLE_CLIENT_SECRET) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/login', getPublicOrigin(request));
     loginUrl.searchParams.set('error', 'google_unconfigured');
     loginUrl.searchParams.set('returnTo', returnTo);
     return NextResponse.redirect(loginUrl);
@@ -37,7 +30,7 @@ export async function GET(request) {
 
   let redirectUri;
   try {
-    redirectUri = getRedirectUri();
+    redirectUri = getRedirectUri(request);
     const state = randomBytes(32).toString('base64url');
     const store = await cookies();
     store.set(STATE_COOKIE, state, {
@@ -66,7 +59,7 @@ export async function GET(request) {
     return NextResponse.redirect(authorizationUrl);
   } catch (error) {
     console.error('Google OAuth initialization failed:', error?.message);
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/login', getPublicOrigin(request));
     loginUrl.searchParams.set('error', 'google_unconfigured');
     loginUrl.searchParams.set('returnTo', returnTo);
     return NextResponse.redirect(loginUrl);

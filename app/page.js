@@ -27,15 +27,25 @@ const CustomCursor = () => {
     let scale = 1;
     let raf = null;
 
+    ring.style.transform = `translate3d(${rx - 18}px, ${ry - 18}px, 0) scale(${scale})`;
+
+    const requestUpdate = () => {
+      if (raf === null) raf = requestAnimationFrame(loop);
+    };
+
     const onMove = (e) => {
       mx = e.clientX;
       my = e.clientY;
       // Dot follows the pointer instantly (offset = half the 8px size)
       dot.style.transform = `translate3d(${mx - 4}px, ${my - 4}px, 0)`;
+      requestUpdate();
     };
 
     const onOver = (e) => {
-      if (e.target.closest && e.target.closest(interactiveSel)) targetScale = 1.6;
+      if (e.target.closest && e.target.closest(interactiveSel)) {
+        targetScale = 1.6;
+        requestUpdate();
+      }
     };
 
     const onOut = (e) => {
@@ -43,30 +53,32 @@ const CustomCursor = () => {
         const related = e.relatedTarget;
         if (!related || !related.closest || !related.closest(interactiveSel)) {
           targetScale = 1;
+          requestUpdate();
         }
       }
     };
 
     const loop = () => {
+      raf = null;
       // Ring eases toward the pointer (offset = half the 36px size)
       rx += (mx - rx) * 0.16;
       ry += (my - ry) * 0.16;
       scale += (targetScale - scale) * 0.2;
       ring.style.transform =
         `translate3d(${rx - 18}px, ${ry - 18}px, 0) scale(${scale})`;
-      raf = requestAnimationFrame(loop);
+      if (Math.abs(mx - rx) > 0.1 || Math.abs(my - ry) > 0.1 || Math.abs(targetScale - scale) > 0.01) {
+        raf = requestAnimationFrame(loop);
+      }
     };
 
     window.addEventListener('mousemove', onMove, { passive: true });
     window.addEventListener('mouseover', onOver, { passive: true });
     window.addEventListener('mouseout', onOut, { passive: true });
-    raf = requestAnimationFrame(loop);
-
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseover', onOver);
       window.removeEventListener('mouseout', onOut);
-      cancelAnimationFrame(raf);
+      if (raf !== null) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -320,6 +332,8 @@ export default function Home() {
   const [filterMenuOpen,         setFilterMenuOpen]         = useState(false);
   const [activeCategoryFilter,   setActiveCategoryFilter]   = useState('');
   const [sortOrder,              setSortOrder]              = useState('');
+  const [sessionUser,            setSessionUser]            = useState(null);
+  const [sessionLoading,         setSessionLoading]         = useState(true);
 
   const videoRef        = useRef(null);
   const checkpointRefs  = useRef([]);   // invisible block divs – provide scroll height
@@ -327,6 +341,29 @@ export default function Home() {
   const shopSectionRef  = useRef(null);
   const hasEnteredMarketplaceRef = useRef(false);
   const categoryBlockRefs = useRef({});
+
+  useEffect(() => {
+    let active = true;
+    async function refreshSession() {
+      setSessionLoading(true);
+      try {
+        const response = await fetch('/api/auth/me', { cache: 'no-store' });
+        const data = await response.json();
+        if (active) setSessionUser(response.ok ? data.user || null : null);
+      } catch {
+        if (active) setSessionUser(null);
+      } finally {
+        if (active) setSessionLoading(false);
+      }
+    }
+    const handleSessionChange = () => { refreshSession(); };
+    refreshSession();
+    window.addEventListener('comotrade:session-changed', handleSessionChange);
+    return () => {
+      active = false;
+      window.removeEventListener('comotrade:session-changed', handleSessionChange);
+    };
+  }, []);
 
   const t = TRANSLATIONS[lang];
   const allProducts = useMemo(() => {
@@ -608,7 +645,7 @@ export default function Home() {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           style={{
             opacity: (videoReady && videoSrc) ? 1 : 0,
             transform: `scale(${1 + scrollProgress * 0.08})`,
@@ -759,8 +796,18 @@ export default function Home() {
                 <Link className={styles.toolbarIconButton} href="/account" aria-label="Akun dan pembayaran">
                   <img src="/Pictures/asset/cash%20or%20payment%20icon.png" alt="" />
                 </Link>
-                <Link className={styles.loginButton} href={`/login?returnTo=${encodeURIComponent('/')}`}>
-                  {lang === 'id' ? 'Masuk' : 'Login'}
+                <Link
+                  className={styles.loginButton}
+                  href={sessionUser ? (sessionUser.role === 'admin' ? '/admin' : '/account') : `/login?returnTo=${encodeURIComponent('/')}`}
+                  aria-busy={sessionLoading}
+                  onClick={!sessionUser ? (event) => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    const currentPage = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                    window.location.assign(`/login?returnTo=${encodeURIComponent(currentPage)}`);
+                  } : undefined}
+                >
+                  {sessionLoading ? (lang === 'id' ? 'Memuat…' : 'Loading…') : sessionUser ? (sessionUser.role === 'admin' ? 'Suplier' : (lang === 'id' ? 'Akun' : 'Account')) : (lang === 'id' ? 'Masuk' : 'Login')}
                 </Link>
                 <button
                   type="button"

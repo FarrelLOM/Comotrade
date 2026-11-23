@@ -367,6 +367,81 @@
   }
 }
 
+/* Nusantara editorial storefront: preserve the cinematic opening, clarify the shop. */
+.shopSection { color: #21372a; }
+.toolbarFrame {
+  border-color: rgba(57, 78, 59, .14);
+  border-radius: 0 0 20px 20px;
+  background: rgba(250, 248, 242, .96);
+  box-shadow: 0 12px 30px rgba(34, 41, 31, .09);
+  backdrop-filter: blur(18px);
+}
+.toolbarIconButton { border-radius: 50%; }
+.toolbarIconButton:hover,.toolbarIconActive { background: #e9eee7; filter: none; }
+.toolbarIconButton img { filter: sepia(.35) saturate(.72) hue-rotate(70deg); }
+.loginButton,.toolbarLangToggle {
+  border-color: #d3dbd1;
+  border-radius: 999px;
+  background: #fff;
+  color: #244a38;
+}
+.loginButton:hover,.toolbarLangToggle:hover { border-color: #244a38; background: #244a38; color: #fff; }
+.toolbarFilterMenu {
+  border-color: #d8ded5;
+  border-radius: 14px;
+  background: #fffdf8;
+  box-shadow: 0 16px 38px rgba(35, 44, 35, .14);
+}
+.toolbarFilterMenu button { border-color: #edf0e9; color: #35473a; }
+.toolbarFilterMenu button:hover { background: #f0f4ee; }
+.searchInner { border-color: #d2dacf; border-radius: 999px; background: rgba(255,253,248,.96); box-shadow: 0 8px 26px rgba(34,41,31,.1); }
+.searchInner:focus-within { border-color: #54745f; background: #fff; box-shadow: 0 0 0 4px rgba(84,116,95,.1); }
+.searchInput,.searchInput::placeholder { color: #34443a; }
+.searchInput::placeholder { opacity: .62; }
+.searchIcon { color: #54745f; }
+.searchSubmitBtn { border-left-color: #e3e8e0; background: #244a38; color: #fff; }
+.searchSubmitBtn:hover { background: #18392d; color: #fff; }
+.clearSearchBtn { color: #54745f; }
+.stickyCategoryBar {
+  border-color: #e1e4dc;
+  border-radius: 14px;
+  background: rgba(255,253,248,.96);
+  box-shadow: 0 8px 24px rgba(34,41,31,.08);
+}
+.stickyCategoryBar:hover { border-color: #aebead; background: #fff; box-shadow: 0 12px 28px rgba(34,41,31,.11); }
+.categoryTitle { color: #244a38; }
+.categoryOrnament,.categoryChevron { color: #a27b3e; }
+.categoryCountBadge { border-color: #dfe5dc; background: #f1f5ef; color: #536b58; }
+.cardsGrid { gap: clamp(14px, 2vw, 24px); padding: 0 clamp(12px, 2vw, 24px); }
+.itemCard {
+  padding: 8px;
+  border: 1px solid #e3e5dc;
+  border-radius: 16px;
+  background: rgba(255,253,248,.96);
+  box-shadow: 0 10px 28px rgba(38,42,30,.08);
+  color: #24352b;
+}
+.itemCard:hover { transform: translateY(-4px); border-color: #a9b9a7; background: #fff; box-shadow: 0 18px 34px rgba(38,42,30,.13); }
+.cardInner { border: 1px solid #edece4; border-radius: 11px; padding: 7px; background: #fbf8f0; }
+.imageContainer { border: 1px solid #e4e6dc; border-radius: 8px; background: #eee9dc; }
+.imageOverlay { box-shadow: inset 0 0 24px rgba(41,43,32,.08); }
+.cardBottom { padding: 13px 8px 10px; }
+.itemName { color: #263b2e; }
+.itemOrnament { background: linear-gradient(90deg, transparent, #b88b42, transparent); }
+.itemCard:hover .itemOrnament { background: linear-gradient(90deg, transparent, #54745f, transparent); }
+.emptyTitle { color: #263b2e; }
+.emptySubtitle { color: #68756c; }
+@media (max-width: 768px) {
+  .toolbarFrame { height: 74px; }
+  .cardsGrid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; padding: 0 12px; }
+  .stickyCategoryBar { margin: 0 12px 12px; padding: 10px 14px; }
+}
+@media (max-width: 430px) {
+  .cardsGrid { gap: 9px; padding: 0 9px; }
+  .itemCard { padding: 5px; border-radius: 12px; }
+  .cardInner { padding: 4px; }
+}
+
 /* ─── Landscape mobile fix ────────────────────────────────────────────────── */
 @media (max-height: 500px) and (orientation: landscape) {
   .lineDecor {

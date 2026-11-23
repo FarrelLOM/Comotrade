@@ -1,3 +1,4 @@
+import 'leaflet/dist/leaflet.css';
 import './globals.css';
 import MarketplaceChrome from './components/MarketplaceChrome';
 import FloatingMessages from './components/FloatingMessages';

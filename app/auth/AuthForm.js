@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import styles from './auth.module.css';
 
 const PHONE_PREFIXES = {
@@ -11,25 +10,17 @@ const PHONE_PREFIXES = {
   MY: '+60', NZ: '+64', PH: '+63', SG: '+65', TH: '+66', US: '+1',
 };
 
-export default function AuthForm({ mode }) {
+export default function AuthForm({ mode, initialReturnTo = '/', initialError = '' }) {
   const isRegister = mode === 'register';
-  const router = useRouter();
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initialError);
   const [busy, setBusy] = useState(false);
-  const [returnTo, setReturnTo] = useState('/#katalog-toko');
+  const [returnTo] = useState(initialReturnTo);
   const [username, setUsername] = useState('');
   const [usernameStatus, setUsernameStatus] = useState('');
   const [phone, setPhone] = useState('');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const requestedReturnTo = params.get('returnTo');
-    if (requestedReturnTo?.startsWith('/') &&
-        !requestedReturnTo.startsWith('//') &&
-        !requestedReturnTo.startsWith('/\\') &&
-        !requestedReturnTo.includes('\\')) {
-      setReturnTo(requestedReturnTo);
-    }
     const reason = params.get('error');
     const messages = {
       google_unconfigured: 'Google OAuth belum dikonfigurasi.',
@@ -86,12 +77,14 @@ export default function AuthForm({ mode }) {
           phone: form.get('phone'),
           email: form.get('email'),
           password: form.get('password'),
+          returnTo,
         }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Autentikasi gagal.');
-      router.replace(data.user.role === 'admin' ? '/admin' : returnTo);
-      router.refresh();
+      if (!data.redirectUrl) throw new Error('URL tujuan setelah login tidak tersedia.');
+      window.dispatchEvent(new Event('comotrade:session-changed'));
+      window.location.replace(data.redirectUrl);
     } catch (cause) {
       setError(cause.message || 'Server belum siap. Pastikan database telah disiapkan.');
     } finally {
@@ -100,12 +93,19 @@ export default function AuthForm({ mode }) {
   }
 
   return (
-    <main className={styles.page}>
-      <section className={styles.card}>
-        <Link className={styles.brand} href="/">REMpAH NUSANTARA</Link>
-        <span className={styles.eyebrow}>MARKETPLACE</span>
-        <h1>{isRegister ? 'Buat akun baru' : 'Selamat datang kembali'}</h1>
-        <p className={styles.lead}>{isRegister ? 'Daftar untuk mulai berbelanja.' : 'Masuk dengan akun pelanggan atau administrator.'}</p>
+    <main className={`${styles.page} commerce-surface`}>
+      <div className={styles.layout}>
+        <aside className={styles.story}>
+          <Link className={styles.brand} href="/">REMPAH NUSANTARA</Link>
+          <span className={styles.storyKicker}>DARI KEBUN NUSANTARA</span>
+          <h2>Cerita baik,<br />dimulai dari asalnya.</h2>
+          <p>Jelajahi rempah pilihan dan hasil karya para perajin langsung dari komunitas lokal.</p>
+          <div className={styles.storyRule}><span /> KUALITAS · ASAL · CERITA</div>
+        </aside>
+        <section className={styles.card}>
+        <span className={styles.eyebrow}>AKUN COMOTRADE</span>
+        <h1>{isRegister ? 'Mulai perjalanan Anda' : 'Selamat datang kembali'}</h1>
+        <p className={styles.lead}>{isRegister ? 'Buat akun untuk menyimpan alamat dan mengikuti pesanan Anda.' : 'Masuk sebagai pelanggan atau suplier untuk melanjutkan.'}</p>
         <form className={styles.form} onSubmit={submit}>
           {isRegister && <label>Nama lengkap<input name="fullName" autoComplete="name" minLength={2} maxLength={120} required /></label>}
           {isRegister && <>
@@ -128,7 +128,8 @@ export default function AuthForm({ mode }) {
         </Link>
         <p className={styles.switch}>{isRegister ? 'Sudah memiliki akun?' : 'Belum memiliki akun?'}{' '}<Link href={`${isRegister ? '/login' : '/register'}?returnTo=${encodeURIComponent(returnTo)}`}>{isRegister ? 'Login' : 'Daftar'}</Link></p>
         <p className={styles.note}>Akun baru otomatis memiliki akses user. Hak admin hanya berasal dari kolom role database.</p>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }

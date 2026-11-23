@@ -128,15 +128,23 @@ export default function FloatingMessages() {
   return (
     <aside className={styles.widget}>
       {open && (
-        <section className={styles.panel} aria-label="Pesan dengan admin">
+        <section className={styles.panel} aria-label="Pesan dengan suplier">
           <header className={styles.panelHead}>
-            <div><strong>Hubungi admin</strong><span>Pesan dibalas oleh tim Rempah Nusantara</span></div>
+            <div><strong>Hubungi suplier</strong><span>Tim Rempah Nusantara siap membantu</span></div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Tutup pesan">×</button>
           </header>
           {!user ? (
             <div className={styles.loginPrompt}>
-              <p>Login terlebih dahulu untuk mengirim pesan kepada admin.</p>
-              <Link href={`/login?returnTo=${encodeURIComponent(returnTo)}`}>Login</Link>
+              <p>Login terlebih dahulu untuk mengirim pesan kepada suplier.</p>
+              <Link
+                href={`/login?returnTo=${encodeURIComponent(returnTo)}`}
+                onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  const currentPage = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                  window.location.assign(`/login?returnTo=${encodeURIComponent(currentPage)}`);
+                }}
+              >Login</Link>
             </div>
           ) : (
             <>
@@ -154,10 +162,10 @@ export default function FloatingMessages() {
                 {activeConversation?.messages?.length
                   ? activeConversation.messages.map((message) => (
                     <p key={message.id} className={message.sender_id === user.id ? styles.ownMessage : styles.adminMessage}>
-                      <strong>{message.sender_id === user.id ? 'Anda' : 'Admin'}</strong>{message.body}
+                      <strong>{message.sender_id === user.id ? 'Anda' : 'Suplier'}</strong>{message.body}
                     </p>
                   ))
-                  : <p className={styles.empty}>Sampaikan pertanyaan Anda kepada admin.</p>}
+                  : <p className={styles.empty}>Sampaikan pertanyaan Anda kepada suplier.</p>}
               </div>
               <form className={styles.form} onSubmit={sendMessage}>
                 <textarea value={body} onChange={(event) => setBody(event.target.value)} maxLength={5000} placeholder="Tulis pesan..." required />

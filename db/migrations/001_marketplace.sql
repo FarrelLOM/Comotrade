@@ -1,3 +1,4 @@
+use CLAUDE_PROJECTS;
 -- MySQL 8+ marketplace schema. This migration creates tables but never drops data.
 CREATE TABLE IF NOT EXISTS users (
   id CHAR(36) NOT NULL PRIMARY KEY,
@@ -99,7 +100,7 @@ CREATE TABLE IF NOT EXISTS reviews (
   rating TINYINT UNSIGNED NOT NULL,
   body VARCHAR(3000) NOT NULL DEFAULT '',
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 5),
+  CONSTRAINT chk_reviews_rating CHECK (rating BETWEEN 1 AND 6),
   CONSTRAINT fk_reviews_order_item FOREIGN KEY (order_item_id) REFERENCES order_items(id) ON DELETE CASCADE,
   CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

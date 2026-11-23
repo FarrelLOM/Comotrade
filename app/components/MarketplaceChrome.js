@@ -12,10 +12,12 @@ export default function MarketplaceChrome() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [user, setUser] = useState(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const isHome = pathname === '/';
+  const isAccount = pathname === '/account' || pathname.startsWith('/account/');
   const isPayment = pathname.startsWith('/payment') ||
     pathname.startsWith('/checkout') ||
-    pathname === '/account';
+    isAccount;
   const [returnTo, setReturnTo] = useState(pathname);
 
   useEffect(() => {
@@ -24,19 +26,32 @@ export default function MarketplaceChrome() {
 
   useEffect(() => {
     let active = true;
-    fetch('/api/auth/me', { cache: 'no-store' })
-      .then(async (response) => {
+    if (isHome || isAccount) {
+      setSessionLoading(false);
+      return () => { active = false; };
+    }
+    async function refreshSession() {
+      setSessionLoading(true);
+      try {
+        const response = await fetch('/api/auth/me', { cache: 'no-store' });
         const data = await response.json();
-        if (active && response.ok) setUser(data.user || null);
-      })
-      .catch((error) => {
-        console.error('Could not check marketplace session:', error);
+        if (active) setUser(response.ok ? data.user || null : null);
+      } catch {
         if (active) setUser(null);
-      });
-    return () => { active = false; };
-  }, [pathname]);
+      } finally {
+        if (active) setSessionLoading(false);
+      }
+    }
+    const handleSessionChange = () => { refreshSession(); };
+    refreshSession();
+    window.addEventListener('comotrade:session-changed', handleSessionChange);
+    return () => {
+      active = false;
+      window.removeEventListener('comotrade:session-changed', handleSessionChange);
+    };
+  }, [isAccount, isHome, pathname]);
 
-  if (isHome) return null;
+  if (isHome || isAccount) return null;
 
   function submitSearch(event) {
     event.preventDefault();
@@ -68,12 +83,23 @@ export default function MarketplaceChrome() {
             <Link href="/cart" className={styles.iconButton} aria-label="Keranjang">
               <img src={asset('cart icon.png')} alt="" />
             </Link>
-            {user ? (
+            {sessionLoading ? (
+              <span className={styles.login} aria-live="polite">Memuat akun…</span>
+            ) : user ? (
               <Link href={user.role === 'admin' ? '/admin' : '/account'} className={styles.profile} aria-label="Profil saya">
                 <img src={asset('identity.png')} alt="" />
               </Link>
             ) : (
-              <Link href={`/login?returnTo=${encodeURIComponent(returnTo)}`} className={styles.login}>Login</Link>
+              <Link
+                href={`/login?returnTo=${encodeURIComponent(returnTo)}`}
+                className={styles.login}
+                onClick={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  event.preventDefault();
+                  const currentPage = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+                  router.push(`/login?returnTo=${encodeURIComponent(currentPage)}`);
+                }}
+              >Login</Link>
             )}
           </nav>
         </>

@@ -1,3 +1,5 @@
+use CLAUDE_PROJECTS;
+
 -- One-time upgrade for databases that have already applied 001_marketplace.sql.
 -- Existing user/product/order rows are retained. Existing products and order items
 -- receive the backward-compatible default unit "unit".

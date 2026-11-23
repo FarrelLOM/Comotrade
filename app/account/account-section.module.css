@@ -1,0 +1,5 @@
+.page { min-height: 100dvh; padding: 108px clamp(18px, 5vw, 74px) 64px; background: #f2ecdf; color: #1f2c25; }
+.header { max-width: 1180px; margin: 0 auto 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.back { color: #708075; font-size: 11px; text-decoration: none; }.kicker { margin: 18px 0 6px; color: #98743a; font-size: 9px; font-weight: 700; letter-spacing: .18em; }.header h1 { margin: 0; color: #1d392c; font: 600 clamp(36px,4vw,52px)/1 'Cormorant Local', Georgia, serif; }.cart { color: #315d43; font-size: 12px; font-weight: 700; text-decoration: none; }
+.nav { max-width: 1180px; margin: 0 auto 20px; display: flex; gap: 6px; overflow-x: auto; padding: 5px; border: 1px solid #e1e4dc; border-radius: 999px; background: rgba(255,253,248,.75); }.nav a { flex: 0 0 auto; padding: 10px 16px; border-radius: 999px; color: #69766c; font-size: 11px; text-decoration: none; }.nav a:hover,.nav .active { background: #244a38; color: #fff; }
+@media(max-width:600px) { .page { padding-top: 88px; }.header { align-items: flex-start; }.nav { margin-left: -10px; margin-right: -10px; border-radius: 14px; }.nav a { padding: 10px 11px; } }

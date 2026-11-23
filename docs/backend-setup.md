@@ -24,6 +24,10 @@ atau `AUTH_SECRET`.
    migrasi yang sama dijalankan berulang kali. Schema awal menambahkan contoh Cabai
    Kering (Rp50.000/kg, stok 1.000 kg) hanya jika produk tersebut belum ada. Migrasi
    tidak menghapus tabel atau data.
+   Migrasi gudang idempoten memastikan `warehouses`, `warehouse_inventory`, serta
+   relasi gudang pada pesanan tersedia meski catatan migrasi pernah tersimpan. Jika API
+   admin menampilkan pesan `Tabel gudang belum dibuat`, jalankan perintah ini pada
+   deployment yang memakai database tersebut, lalu restart aplikasi.
 4. Jika tabel lama sudah ada tetapi strukturnya tidak sesuai, skrip akan berhenti dan
    menyebut kolom yang hilang. Buat cadangan, tinjau struktur lama, lalu siapkan migrasi
    kompatibilitas tersendiri; `CREATE TABLE IF NOT EXISTS` tidak mengubah tabel lama.

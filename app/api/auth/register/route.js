@@ -3,12 +3,15 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { createSession } from '@/lib/auth';
 import { query } from '@/lib/db';
+import { getPublicOrigin } from '@/lib/public-origin.mjs';
+import { safeReturnTo } from '@/lib/safe-return-to.mjs';
 
 export const runtime = 'nodejs';
 
 export async function POST(request) {
   try {
-    const { fullName, username, phone, email, password } = await request.json();
+    const appOrigin = getPublicOrigin(request);
+    const { fullName, username, phone, email, password, returnTo } = await request.json();
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const normalizedUsername = String(username || '').trim().toLowerCase();
     const normalizedPhone = String(phone || '').trim();
@@ -37,7 +40,10 @@ export async function POST(request) {
       [id],
     );
     await createSession(id);
-    return NextResponse.json({ user: rows[0] }, { status: 201 });
+    return NextResponse.json({
+      user: rows[0],
+      redirectUrl: new URL(safeReturnTo(returnTo), appOrigin).toString(),
+    }, { status: 201 });
   } catch (error) {
     if (error?.code === 'ER_DUP_ENTRY') {
       return NextResponse.json({ error: 'Username atau email sudah terdaftar.' }, { status: 409 });
